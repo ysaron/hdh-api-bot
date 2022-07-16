@@ -212,6 +212,7 @@ class CardDetailInfo(TextBuilder):
 
 
 class TextInfo:
+    """ Text builder """
 
     def __init__(self, data: dict):
         self.__data = data
