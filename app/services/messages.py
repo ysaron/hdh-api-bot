@@ -49,7 +49,10 @@ class CardRequestInfo(TextBuilder):
         if self.data.get('name'):
             self.rows.append(self.name.format(self.data['name']))
         if self.data.get('ctype'):
-            verbose_type = hs_data.gettype(self.data['ctype']).en
+            try:
+                verbose_type = hs_data.gettype(sign=self.data['ctype']).en
+            except StopIteration:
+                verbose_type = 'Unknown ❗️'
             self.rows.append(self.ctype.format(verbose_type))
         if self.data.get('classes'):
             verbose_class = ','.join(self.data['classes'])
@@ -57,7 +60,10 @@ class CardRequestInfo(TextBuilder):
         if self.data.get('cset'):
             self.rows.append(self.cset.format(self.data['cset']))
         if self.data.get('rarity'):
-            verbose_rarity = hs_data.getrarity(sign=self.data['rarity']).en
+            try:
+                verbose_rarity = hs_data.getrarity(sign=self.data['rarity']).en
+            except StopIteration:
+                verbose_rarity = 'Unknown ❗️'
             self.rows.append(self.rarity.format(verbose_rarity))
         if self.data.get('cost'):
             self.rows.append(self.cost.format(self.data['cost']))
