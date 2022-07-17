@@ -17,7 +17,7 @@ class KeyboardBuilder:
         self.data = data
         self.keyboard: KeyboardMarkup = None
 
-    def _fill(self, buttons: Btns) -> None:
+    def fill(self, buttons: Btns) -> None:
         """
         Fill self.keyboard with buttons
 
@@ -38,8 +38,8 @@ class KeyboardBuilder:
                     raise ValueError(f'Invalid keyboard row: {row}')
 
     @staticmethod
-    def _group_buttons(buttons: list[str | InlineKeyboardButton],
-                       cols: int = 2) -> list[tuple[str | InlineKeyboardButton, ...]]:
+    def group_buttons(buttons: list[str | InlineKeyboardButton],
+                      cols: int = 2) -> list[tuple[str | InlineKeyboardButton, ...]]:
         """ Reshape array of buttons for __fill() method """
         btn_array = []
         row = []
@@ -69,7 +69,7 @@ class CommonKeyboardBuilder(KeyboardBuilder):
             'Decode Deckstring',
         ]
         self.keyboard = ReplyKeyboardMarkup()
-        self._fill(buttons)
+        self.fill(buttons)
         return self.keyboard
 
 
@@ -120,7 +120,7 @@ class CardKeyboardBuilder(KeyboardBuilder):
             InlineKeyboardButton('CLOSE', callback_data=command_cd.new(scope='card_request', action='close')),
         ))
         self.keyboard = InlineKeyboardMarkup()
-        self._fill(buttons)
+        self.fill(buttons)
 
         return self.keyboard
 
@@ -143,26 +143,26 @@ class CardKeyboardBuilder(KeyboardBuilder):
             case 'ctype':
                 type_buttons = [InlineKeyboardButton(t.en, callback_data=cardparam_cd.new(param=t.sign, action='add'))
                                 for t in hs_data.types]
-                buttons = self._group_buttons(type_buttons)
+                buttons = self.group_buttons(type_buttons)
             case 'classes':
                 class_buttons = [InlineKeyboardButton(c.en, callback_data=cardparam_cd.new(param=c.en, action='add'))
                                  for c in hs_data.classes]
-                buttons = self._group_buttons(class_buttons)
+                buttons = self.group_buttons(class_buttons)
             case 'cset':
                 set_buttons = [InlineKeyboardButton(s.en, callback_data=cardparam_cd.new(param=s.en, action='add'))
                                for s in hs_data.sets]
-                buttons = self._group_buttons(set_buttons)
+                buttons = self.group_buttons(set_buttons)
             case 'rarity':
                 rarity_buttons = [InlineKeyboardButton(r.en, callback_data=cardparam_cd.new(param=r.sign, action='add'))
                                   for r in hs_data.rarities]
-                buttons = self._group_buttons(rarity_buttons)
+                buttons = self.group_buttons(rarity_buttons)
             case _:
                 raise ValueError(f'Unknown card parameter: {param}')
 
         buttons.append(tuple(lower_row))
 
         self.keyboard = InlineKeyboardMarkup()
-        self._fill(buttons)
+        self.fill(buttons)
         return self.keyboard
 
     def result_list(self):
@@ -177,7 +177,7 @@ class CardKeyboardBuilder(KeyboardBuilder):
                                  callback_data=cardlist_cd.new(id=card['dbf_id'], action='get'))
             for i, card in enumerate(page_cards, start=1)
         ]
-        card_buttons = self._group_buttons(card_buttons, cols=3)
+        card_buttons = self.group_buttons(card_buttons, cols=3)
 
         page_buttons = []
         if total_pages > 1:
@@ -198,7 +198,7 @@ class CardKeyboardBuilder(KeyboardBuilder):
         card_buttons.append(tuple(control_buttons))
 
         self.keyboard = InlineKeyboardMarkup()
-        self._fill(card_buttons)
+        self.fill(card_buttons)
         return self.keyboard
 
     def result_detail(self):
@@ -211,7 +211,7 @@ class CardKeyboardBuilder(KeyboardBuilder):
             ),
         ]
         self.keyboard = InlineKeyboardMarkup()
-        self._fill(buttons)
+        self.fill(buttons)
         return self.keyboard
 
 
