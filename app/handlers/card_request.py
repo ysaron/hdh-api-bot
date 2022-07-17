@@ -322,6 +322,9 @@ async def card_search(call: types.CallbackQuery, state: FSMContext):
 
     try:
         resp_msg = await call.message.reply(text=response.text, reply_markup=response.keyboard)
+
+        # Close keyboard for RequestInfoMessage
+        await call.message.edit_reply_markup()
     except BadRequest:
         resp_msg = await call.bot.send_message(
             chat_id=call.from_user.id,

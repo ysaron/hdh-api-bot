@@ -49,7 +49,19 @@ async def card_list_pages(call: types.CallbackQuery, callback_data: dict, state:
             # Delete CardList message
             await call.message.delete()
             await BuildCardRequest.base.set()
-            await state.update_data(response_msg_id=None)
+
+            # Open keyboard again for RequestInfoMessage
+            data = await state.get_data()
+            if data.get('request_msg_id'):
+                response = AnswerBuilder(data).cards.request_info()
+                with suppress(MessageNotModified):
+                    await call.bot.edit_message_reply_markup(
+                        chat_id=call.message.chat.id,
+                        message_id=data['request_msg_id'],
+                        reply_markup=response.keyboard
+                    )
+
+            await state.update_data(response_msg_id=None, cardlist=None, card_detail=None)
         case _:
             raise ValueError(f'Unknown CardList action: {action}')
 

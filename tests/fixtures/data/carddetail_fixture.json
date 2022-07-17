@@ -1,0 +1,34 @@
+{
+  "card_detail": {
+    "dbf_id": 49184,
+    "card_id": "BOT_548",
+    "name": "Zilliax",
+    "collectible": true,
+    "battlegrounds": false,
+    "card_type": "Minion",
+    "cost": 5,
+    "attack": 3,
+    "health": 2,
+    "durability": 0,
+    "armor": 0,
+    "card_class": [
+      "Neutral"
+    ],
+    "card_set": "The Boomsday Project",
+    "text": "<b>Magnetic</b> <b><b>Divine Shield</b>, <b>Taunt</b>, Lifesteal, Rush</b>",
+    "flavor": "Everything but the kitchen sink. Oh wait, there's one on his back.",
+    "rarity": "Legendary",
+    "tribe": [
+      "Mech"
+    ],
+    "spell_school": "---------",
+    "artist": "L. Lullabi & K. Turovec",
+    "mechanic": [
+      "Taunt",
+      "Rush",
+      "Divine Shield",
+      "Magnetic",
+      "Lifesteal"
+    ]
+  }
+}

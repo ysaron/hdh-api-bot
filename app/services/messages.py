@@ -81,14 +81,14 @@ class CardListInfo(TextBuilder):
 
     def __init__(self, data: dict):
         self.__cardlist: list[list[dict]] = data['cardlist']['cards']
-        self.__page: int = data['cardlist']['page']
-        self.__total = data['cardlist']['total']
-        self.__cards: list[dict] = self.__cardlist[self.__page - 1] if self.__cardlist else []
-        self.__header = f'Cards found: <b>{self.__total}</b>\n'
+        self.page: int = data['cardlist']['page']
+        self.total = data['cardlist']['total']
+        self.__cards: list[dict] = self.__cardlist[self.page - 1] if self.__cardlist else []
+        self.header = f'Cards found: <b>{self.total}</b>\n'
         super().__init__()
 
     def format(self):
-        self.rows.append(self.__header)
+        self.rows.append(self.header)
 
         if self.__cards:
             for idx, card in enumerate(self.__cards, start=1):
