@@ -47,5 +47,3 @@ def test_flip_page(direction, current, npages, expected):
         utils.flip_page(direction='up', current_page=1, npages=2)
 
     assert utils.flip_page(direction, current, npages) == expected
-
-
