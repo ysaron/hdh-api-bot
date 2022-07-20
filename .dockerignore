@@ -1,0 +1,4 @@
+.env
+venv
+docker-compose.yml
+.pytest_cache
