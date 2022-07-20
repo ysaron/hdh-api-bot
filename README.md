@@ -10,6 +10,7 @@ The bot allows you to construct requests to the HS Deck Helper API using Telegra
 
 - Python3.10
 - aiogram
+- aiohttp
 - Redis
 - pytest & asynctest
 - Docker & docker-compose
