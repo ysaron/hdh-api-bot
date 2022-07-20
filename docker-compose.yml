@@ -4,6 +4,7 @@ services:
   bot:
     image: ysaron/hdhapibot:latest
     command: python bot.py
+    restart: always
     env_file:
       - .env
     depends_on:
