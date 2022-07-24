@@ -3,7 +3,7 @@ import ujson
 
 from aiogram.types import ReplyKeyboardMarkup, InlineKeyboardMarkup, ReplyKeyboardRemove
 
-from app.services.messages import TextInfo, CardRequestInfo, CardListInfo, CardDetailInfo
+from app.services.messages import TextInfo, CardRequestInfo, CardListInfo, CardDetailInfo, DeckDetailInfo
 from app.services.keyboards import Keyboard, CommonKeyboardBuilder, CardKeyboardBuilder
 from app.config import BASE_DIR
 
@@ -75,6 +75,11 @@ def card_detail_info_obj(card_detail_data) -> CardDetailInfo:
 
 
 @pytest.fixture
+def deck_detail_info_obj(deck_detail_data) -> DeckDetailInfo:
+    return TextInfo(data=deck_detail_data).deck_detail
+
+
+@pytest.fixture
 def reply_keyboard():
     """ Empty Telegram Reply Keyboard """
     return ReplyKeyboardMarkup()
@@ -109,3 +114,60 @@ def card_list_keyboard_builder_obj(card_list_data) -> CardKeyboardBuilder:
 @pytest.fixture
 def card_detail_keyboard_builder_obj(card_detail_data) -> CardKeyboardBuilder:
     return Keyboard(data=card_detail_data).cards
+
+
+@pytest.fixture
+def pure_deckstring() -> str:
+    return 'AAEBAZ/HAgjSwQLo0ALY4wKC9wKh/gKspQOnywOX7wQQ5QSCtALRwQLYw' \
+           'QLQ/gLxgAPmiAPrigOTugObugPi3gP73wPK4QOtigTUrASktgQA'
+
+
+@pytest.fixture
+def decklist_from_game() -> str:
+    return """
+        ### Колода
+        # Класс: Жрец
+        # Формат: Вольный
+        #
+        # 2x (0) Переворот
+        # 1x (1) Бальзамирование
+        # 2x (1) Обновление
+        # 2x (1) Подопытный
+        # 1x (1) Связующее исцеление
+        # 2x (1) Слово силы: Щит
+        # 2x (2) Любовь к тени
+        # 2x (2) Прозрение
+        # 2x (2) Сетеккская ворожея
+        # 2x (2) Сияющий элементаль
+        # 1x (2) Смертозвон
+        # 2x (2) Спиритизм
+        # 2x (2) Темные видения
+        # 2x (3) Гадание по руке
+        # 1x (3) Дар сияния
+        # 1x (3) Душа дракона
+        # 2x (3) Назманийская колдунья
+        # 1x (3) Оживший кошмар
+        # 1x (3) Принц Ренатал
+        # 2x (3) Служанка
+        # 2x (4) Светозарный дракон Пустоты
+        # 1x (7) Ментальный крик
+        # 2x (12) Волшебный великан
+        # 2x (12) Могильный ужас
+        # 
+        AAEBAZ/HAgjSwQLo0ALY4wKC9wKh/gKspQOnywOX7wQQ5QSCtALRwQLYwQLQ/gLxgAPmiAPrigOTugObugPi3gP73wPK4QOtigTUrASktgQA
+        # 
+        # Чтобы использовать эту колоду, скопируйте ее в буфер обмена и создайте новую колоду в Hearthstone.
+    """
+
+
+@pytest.fixture
+def deck_detail_data() -> dict:
+    """ Data used for building carddetail response """
+    with open(DATA_DIR / 'deckdetail_fixture.json', 'r', encoding='utf-8') as f:
+        return ujson.load(f)
+
+
+@pytest.fixture
+def deck_detail_full_data(deck_detail_data) -> dict:
+    """ Full context data for build-request handlers """
+    return deck_detail_data | {'request_msg_id': 1111, 'prompt_msg_id': 1112, 'response_msg_id': 1113}

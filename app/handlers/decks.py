@@ -15,7 +15,7 @@ async def deck_search_start(message: types.Message, state: FSMContext):
     await message.reply(text='Coming soon!')
 
 
-async def deck_decode_start(message: types.Message, state: FSMContext):
+async def deck_decode_start(message: types.Message):
     """ Prompt to enter the deck code """
     answer = AnswerBuilder({}).decks.decode_prompt()
     await message.reply(text=answer.text)

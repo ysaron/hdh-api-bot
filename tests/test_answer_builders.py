@@ -60,3 +60,18 @@ class TestCardAnswerBuilder:
         assert isinstance(answer, BotAnswer)
         assert isinstance(answer.text, str)
         assert isinstance(answer.keyboard, InlineKeyboardMarkup)
+
+
+class TestDeckAnswerBuilder:
+
+    def test_deck_answer_builder_decode_prompt(self):
+        answer = AnswerBuilder({}).decks.decode_prompt()
+        assert isinstance(answer, BotAnswer)
+        assert answer.text == CommonMessage.DECODE_DECK_PROMPT
+        assert answer.keyboard is None
+
+    def test_deck_answer_builder_deck_detail(self, deck_detail_full_data):
+        answer = AnswerBuilder(deck_detail_full_data).decks.deck_detail()
+        assert isinstance(answer, BotAnswer)
+        assert isinstance(answer.text, str)
+        assert answer.keyboard is None

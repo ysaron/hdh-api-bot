@@ -4,6 +4,7 @@ from unittest.mock import AsyncMock, call, ANY, patch
 
 from app.handlers.card_request import *
 from app.handlers.card_response import *
+from app.handlers.decks import *
 from app.handlers.common import cmd_start, cmd_cancel
 
 
@@ -565,3 +566,42 @@ class TestCardHandlers:
 
             builder_mock.assert_called_with()
             call_mock.bot.edit_message_text.assert_called_once()
+
+
+class TestDeckHandlers:
+
+    @pytest.mark.asyncio
+    async def test_deck_decode_start(self):
+        message_mock = AsyncMock()
+
+        with patch('app.services.answer_builders.DeckAnswerBuilder.decode_prompt') as builder_mock:
+            await deck_decode_start(message=message_mock)
+
+            builder_mock.assert_called_with()
+            message_mock.reply.assert_called_with(text=ANY)
+
+    @pytest.mark.asyncio
+    async def test_deck_decode_from_deckstring(self, pure_deckstring):
+        message_mock = AsyncMock(text=pure_deckstring)
+        context_mock = AsyncMock()
+
+        with asynctest.patch('app.handlers.decks.deck_decode') as decode_mock, \
+                patch('app.handlers.decks.is_valid_deckstring') as validation_mock:
+            await deck_decode_from_deckstring(message=message_mock, state=context_mock)
+
+            validation_mock.assert_called_with(message_mock.text)
+            decode_mock.assert_called_with(message_mock, context_mock, deckstring=message_mock.text)
+
+    @pytest.mark.asyncio
+    async def test_deck_decode_from_decklist(self, decklist_from_game, pure_deckstring):
+        message_mock = AsyncMock(text=decklist_from_game)
+        context_mock = AsyncMock()
+
+        with asynctest.patch('app.handlers.decks.deck_decode') as decode_mock, \
+                patch('app.handlers.decks.extract_deckstring') as extract_mock:
+            extract_mock.return_value = pure_deckstring
+            await deck_decode_from_decklist(message=message_mock, state=context_mock)
+
+            extract_mock.assert_called_with(decklist=message_mock.text)
+            decode_mock.assert_called_with(message_mock, context_mock, deckstring=pure_deckstring)
+

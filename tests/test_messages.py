@@ -44,3 +44,19 @@ class TestCardDetailInfo:
     def test_card_detail_info_format(self, card_detail_info_obj):
         card_detail_info_obj.format()
         assert card_detail_info_obj.rows
+
+
+class TestDeckDetailInfo:
+
+    def test_deck_detail_info_init(self, deck_detail_info_obj, pure_deckstring):
+        assert isinstance(deck_detail_info_obj.deck, dict)
+        assert deck_detail_info_obj.dformat == 'Wild'
+        assert deck_detail_info_obj.dclass == 'Priest'
+        assert deck_detail_info_obj.date == '07.07.2022'
+        assert isinstance(deck_detail_info_obj.cards, list)
+        assert all(isinstance(card, dict) for card in deck_detail_info_obj.cards)
+        assert deck_detail_info_obj.string == pure_deckstring
+
+    def test_deck_detail_info_format(self, deck_detail_info_obj):
+        deck_detail_info_obj.format()
+        assert deck_detail_info_obj.rows
