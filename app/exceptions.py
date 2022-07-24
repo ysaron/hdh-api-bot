@@ -8,3 +8,7 @@ class ArgumentError(Exception):
 
 class EmptyRequestError(Exception):
     pass
+
+
+class DeckstringError(Exception):
+    pass

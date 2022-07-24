@@ -90,6 +90,17 @@ class DeckAnswerBuilder:
         """
         self.__data = data
 
+    @staticmethod
+    def decode_prompt() -> BotAnswer:
+        """ Creates a hint message for receiving the deck code """
+        text = CommonMessage.DECODE_DECK_PROMPT
+        return BotAnswer(text=text, keyboard=None)
+
+    def deck_detail(self) -> BotAnswer:
+        """ Creates message with deck detail info """
+        text = TextInfo(self.__data).deck_detail.as_text()
+        return BotAnswer(text=text, keyboard=None)
+
 
 class AnswerBuilder:
     """ Creator of BotAnswer objects """

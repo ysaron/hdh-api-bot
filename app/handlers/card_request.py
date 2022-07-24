@@ -298,7 +298,7 @@ async def card_search(call: types.CallbackQuery, state: FSMContext):
     data = await state.get_data()
 
     try:
-        cards = await RequestCards(data).perform()
+        cards = await RequestCards(data).get()
     except ClientResponseError as e:
         logger.error(f'HS Deck Helper API is unreachable: {e}')
         await call.answer(CommonMessage.SERVER_UNAVAILABLE)

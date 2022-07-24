@@ -468,7 +468,7 @@ class TestCardHandlers:
         context_mock = AsyncMock()
         context_mock.get_data.return_value = card_request_full_data | card_list_full_data
 
-        with asynctest.patch('app.handlers.card_request.RequestCards.perform') as api_mock, \
+        with asynctest.patch('app.handlers.card_request.RequestCards.get') as api_mock, \
                 patch('app.states.cards.CardResponse.list.set') as state_mock, \
                 patch('app.services.answer_builders.CardAnswerBuilder.result_list') as builder_mock:
             api_mock.return_value = card_list_full_data['cardlist']['cards']
@@ -544,7 +544,7 @@ class TestCardHandlers:
         context_mock.get_data.return_value = card_detail_full_data
         callback_data = {'id': 49184}
 
-        with asynctest.patch('app.handlers.card_response.RequestSingleCard.perform') as api_mock, \
+        with asynctest.patch('app.handlers.card_response.RequestSingleCard.get') as api_mock, \
                 patch('app.services.answer_builders.CardAnswerBuilder.result_detail') as builder_mock:
             api_mock.return_value = card_detail_full_data['card_detail']
             await card_list_get_card(call=call_mock, callback_data=callback_data, state=context_mock)

@@ -217,6 +217,40 @@ class CardDetailInfo(TextBuilder):
         return super().as_text()
 
 
+class DeckDetailInfo(TextBuilder):
+    """ Encapsulates text of DeckDetailMessage """
+
+    def __init__(self, data: dict):
+        super().__init__()
+        self.deck: dict = data['deck']
+        self.dformat = self.deck.get('deck_format', 'UNKNOWN')
+        self.dclass = self.deck.get('deck_class', 'UNKNOWN')
+        self.date = self.deck.get('created', '??.??.????')
+        self.cards: list[dict] = self.deck['cards']
+        self.string = self.deck['string']
+
+    def format(self):
+        header = f'<b>►►► <u>{self.dformat} {self.dclass} deck</u> ◄◄◄</b>'
+        self.rows.append(header)
+        self.rows.append(f'\nCreated: <b>{self.date}</b>\n')
+
+        for card in self.cards:
+            cost = card["card"]["cost"]
+            row = md.text(
+                f'{card["number"]}x',
+                f'({cost}){"  " if cost < 10 else ""}',
+                md.hlink(card["card"]["name"], url=f'{CARD_RENDER_BASE_URL}en/{card["card"]["card_id"]}.png'),
+            )
+            self.rows.append(row)
+
+        self.rows.append(f'\n<pre>{self.string}</pre>')
+
+    def as_text(self) -> str:
+        if not self.rows:
+            self.format()
+        return super().as_text()
+
+
 class TextInfo:
 
     def __init__(self, data: dict):
@@ -234,6 +268,10 @@ class TextInfo:
     def card_detail(self):
         return CardDetailInfo(self.__data)
 
+    @property
+    def deck_detail(self):
+        return DeckDetailInfo(self.__data)
+
 
 class CommonMessage:
     """ Static common messages """
@@ -241,6 +279,12 @@ class CommonMessage:
             'Available commands:\n/cards\n/decks\n/decode'
     CANCEL = '<b>All activity is cancelled. You\'re in the main menu.</b>\n\n' \
              'Available commands:\n/cards\n/decks\n/decode'
+    DECODE_DECK_PROMPT = 'Send me the Hearthstone deck code, for example:\n' \
+                         '<pre>AAEBAaIHBPYC0OMCt7MEv84EDYgH9bsC8OYCqssD590DqusD/u4D0/MDjfQDofQDvYAE958E/KUEAA==</pre>'
+    DECODE_ERROR = f'❗️ Error: probably invalid deckstring'
+    INVALID_DECKSTRING = '❗️ This deck code seems to be corrupted'
+    INVALID_DECKLIST = '❗️ Couldn\'t extract the deck code'
+
     SERVER_UNAVAILABLE = 'The server is unavailable. Please try again later'
     EMPTY_REQUEST_HINT = 'You must provide at least 1 parameter for the search'
     TOO_MANY_RESULTS_HINT_ = 'Too many results ({}). Please specify more parameters'

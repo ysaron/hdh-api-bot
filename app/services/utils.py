@@ -1,8 +1,18 @@
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.utils.exceptions import MessageToDeleteNotFound
+from aiohttp import ClientResponseError
 
 from contextlib import suppress
+import logging
+import re
+
+from app.exceptions import DeckstringError
+from .api import RequestDecodeDeck
+from .answer_builders import AnswerBuilder
+from .messages import CommonMessage
+
+logger = logging.getLogger('app')
 
 
 def is_positive_integer(string: str) -> bool:
@@ -52,6 +62,34 @@ def flip_page(direction: str, current_page: int, npages: int) -> int:
             raise ValueError(f'Unknown page flipping direction: {direction}')
 
 
+def extract_deckstring(decklist: str) -> str:
+    """
+    Extract deckstring contained in full decklist
+
+    :param decklist: the deck in the form in which it is copied from the game client
+    :return: pure deckstring
+    :raise DeckstringError: if decklist isn't valid
+    """
+    try:
+        deckstring = decklist.split('#')[-3].strip()
+    except (IndexError, AttributeError):
+        raise DeckstringError('Couldn\'t extract the deck code')
+
+    if not is_valid_deckstring(deckstring):
+        raise DeckstringError('Couldn\'t extract the valid deck code')
+
+    return deckstring
+
+
+def is_valid_deckstring(deckstring: str) -> bool:
+    """
+    Check if the deckstring can be interpreted as a Hearthstone deck
+
+    :param deckstring: the intended deck code
+    """
+    return bool(re.match(r'^AAE[a-zA-Z0-9/+=]{30,}$', deckstring))
+
+
 async def clear_all(message: types.Message, state: FSMContext):
     """ Delete all stored messages """
     data = await state.get_data()
@@ -68,3 +106,30 @@ async def clear_prompt(message: types.Message, data: dict, state: FSMContext):
         with suppress(MessageToDeleteNotFound):
             await message.bot.delete_message(message.chat.id, data['prompt_msg_id'])
         await state.update_data(prompt_msg_id=None)
+
+
+async def deck_decode(message: types.Message, state: FSMContext, deckstring: str):
+    """
+    POST deckstring to API. Send formatted deck
+
+    :param message: message parameter from handler
+    :param state: state parameter from handler
+    :param deckstring: valid deck code
+    """
+
+    try:
+        deck = await RequestDecodeDeck().post({'d': deckstring})
+    except ClientResponseError as e:
+        logger.error(f'HS Deck Helper API is unreachable: {e}')
+        await message.reply(CommonMessage.SERVER_UNAVAILABLE)
+        return
+
+    if 'error' in deck:
+        logger.warning(f'DecodeError: {deck["error"]}. Deckstring: {message.text}')
+        await message.reply(CommonMessage.DECODE_ERROR)
+        return
+
+    await state.update_data(deck=deck)
+    data = await state.get_data()
+    response = AnswerBuilder(data).decks.deck_detail()
+    await message.reply(text=response.text)

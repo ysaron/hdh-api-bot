@@ -78,7 +78,7 @@ async def card_list_get_card(call: types.CallbackQuery, callback_data: dict, sta
         return
 
     try:
-        card = await RequestSingleCard(dbf_id).perform()
+        card = await RequestSingleCard(dbf_id).get()
     except ClientResponseError as e:
         logger.error(f'HS Deck Helper API is unreachable: {e}')
         await call.answer('The server is unavailable. Please try again later.')
