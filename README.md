@@ -19,5 +19,5 @@ The bot allows you to construct requests to the HS Deck Helper API using Telegra
 
 Supported HS Deck Helper API features:  
 - **Searching cards** 
+- **Decoding decks** from deck code or decklist
 - *Searching decks* (coming soon)
-- *Decoding decks* (coming soon)
