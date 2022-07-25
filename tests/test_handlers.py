@@ -55,10 +55,10 @@ class TestCardHandlers:
             message_mock.answer.assert_has_calls(answer_calls)
             state_mock.assert_called()
             context_mock.get_data.assert_called_with()
-            context_mock.update_data.assert_called_with(request_msg_id=ANY)
+            context_mock.update_data.assert_called_with(card_request_msg_id=ANY)
 
     @pytest.mark.asyncio
-    async def test_update_request(self, card_request_full_data):
+    async def test_update_card_request(self, card_request_full_data):
         test_chat_id = 1
         message_mock = AsyncMock()
         context_mock = AsyncMock()
@@ -66,14 +66,14 @@ class TestCardHandlers:
         message_mock.chat.id = test_chat_id
 
         with patch('app.services.answer_builders.CardAnswerBuilder.request_info') as builder_mock:
-            await update_request(message=message_mock, state=context_mock, request_data=card_request_full_data)
+            await update_card_request(message=message_mock, state=context_mock, request_data=card_request_full_data)
 
             builder_mock.assert_called_with()
             context_mock.get_data.assert_called_with()
             message_mock.bot.edit_message_text.assert_called_with(
                 ANY,
                 chat_id=test_chat_id,
-                message_id=card_request_full_data['request_msg_id'],
+                message_id=card_request_full_data['card_request_msg_id'],
                 reply_markup=ANY,
             )
 
@@ -85,7 +85,7 @@ class TestCardHandlers:
             await card_search_param_cancel(call=call_mock, state=context_mock)
 
             call_mock.message.delete.assert_called_with()
-            context_mock.update_data.assert_called_with(prompt_msg_id=None)
+            context_mock.update_data.assert_called_with(card_prompt_msg_id=None)
             state_mock.assert_called_with()
 
     @pytest.mark.asyncio
@@ -96,12 +96,12 @@ class TestCardHandlers:
         context_mock.get_data.return_value = card_request_full_data
 
         with asynctest.patch('app.states.cards.BuildCardRequest.base.set') as state_mock, \
-                asynctest.patch('app.handlers.card_request.update_request') as update_mock:
+                asynctest.patch('app.handlers.card_request.update_card_request') as update_mock:
             await card_search_param_clear(call=call_mock, callback_data=callback_data, state=context_mock)
 
             call_mock.message.delete.assert_called_with()
             state_mock.assert_called_with()
-            context_mock.update_data.assert_called_with({'rarity': None, 'prompt_msg_id': None})
+            context_mock.update_data.assert_called_with({'rarity': None, 'card_prompt_msg_id': None})
             update_mock.assert_called_once()
 
     @pytest.mark.asyncio
@@ -120,7 +120,7 @@ class TestCardHandlers:
             builder_mock.assert_called_with('name')
             call_mock.message.reply.assert_called_once()
             state_mock.assert_called_with()
-            context_mock.update_data.assert_called_with(prompt_msg_id=prompt_mock.message_id)
+            context_mock.update_data.assert_called_with(card_prompt_msg_id=prompt_mock.message_id)
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
@@ -138,7 +138,7 @@ class TestCardHandlers:
 
         with asynctest.patch('app.states.cards.BuildCardRequest.base.set') as state_mock, \
                 asynctest.patch('app.handlers.card_request.clear_prompt') as clear_prompt_mock, \
-                asynctest.patch('app.handlers.card_request.update_request') as update_mock, \
+                asynctest.patch('app.handlers.card_request.update_card_request') as update_mock, \
                 patch('app.services.answer_builders.CardAnswerBuilder.invalid_param') as builder_mock:
             await card_search_name_entered(message=message_mock, state=context_mock)
 
@@ -167,7 +167,7 @@ class TestCardHandlers:
 
         with asynctest.patch('app.states.cards.BuildCardRequest.base.set') as state_mock, \
                 asynctest.patch('app.handlers.card_request.clear_prompt') as clear_prompt_mock, \
-                asynctest.patch('app.handlers.card_request.update_request') as update_mock, \
+                asynctest.patch('app.handlers.card_request.update_card_request') as update_mock, \
                 patch('app.services.answer_builders.CardAnswerBuilder.invalid_param') as builder_mock:
             await card_search_name_entered(message=message_mock, state=context_mock)
 
@@ -196,7 +196,7 @@ class TestCardHandlers:
             builder_mock.assert_called_with('ctype')
             call_mock.message.reply.assert_called_once()
             state_mock.assert_called_with()
-            context_mock.update_data.assert_called_with(prompt_msg_id=prompt_mock.message_id)
+            context_mock.update_data.assert_called_with(card_prompt_msg_id=prompt_mock.message_id)
             call_mock.answer.assert_called_once()
 
     @pytest.mark.asyncio
@@ -212,7 +212,7 @@ class TestCardHandlers:
 
         with asynctest.patch('app.states.cards.BuildCardRequest.base.set') as state_mock, \
                 asynctest.patch('app.handlers.card_request.clear_prompt') as clear_prompt_mock, \
-                asynctest.patch('app.handlers.card_request.update_request') as update_mock:
+                asynctest.patch('app.handlers.card_request.update_card_request') as update_mock:
             await card_search_type_chosen(call=call_mock, callback_data=callback_data, state=context_mock)
 
             context_mock.update_data.assert_called()
@@ -237,7 +237,7 @@ class TestCardHandlers:
             builder_mock.assert_called_with('classes')
             call_mock.message.reply.assert_called_once()
             state_mock.assert_called_with()
-            context_mock.update_data.assert_called_with(prompt_msg_id=prompt_mock.message_id)
+            context_mock.update_data.assert_called_with(card_prompt_msg_id=prompt_mock.message_id)
             call_mock.answer.assert_called_once()
 
     @pytest.mark.asyncio
@@ -253,7 +253,7 @@ class TestCardHandlers:
 
         with asynctest.patch('app.states.cards.BuildCardRequest.base.set') as state_mock, \
                 asynctest.patch('app.handlers.card_request.clear_prompt') as clear_prompt_mock, \
-                asynctest.patch('app.handlers.card_request.update_request') as update_mock:
+                asynctest.patch('app.handlers.card_request.update_card_request') as update_mock:
             await card_search_class_chosen(call=call_mock, callback_data=callback_data, state=context_mock)
 
             context_mock.update_data.assert_called()
@@ -278,7 +278,7 @@ class TestCardHandlers:
             builder_mock.assert_called_with('cset')
             call_mock.message.reply.assert_called_once()
             state_mock.assert_called_with()
-            context_mock.update_data.assert_called_with(prompt_msg_id=prompt_mock.message_id)
+            context_mock.update_data.assert_called_with(card_prompt_msg_id=prompt_mock.message_id)
             call_mock.answer.assert_called_once()
 
     @pytest.mark.asyncio
@@ -298,7 +298,7 @@ class TestCardHandlers:
 
         with asynctest.patch('app.states.cards.BuildCardRequest.base.set') as state_mock, \
                 asynctest.patch('app.handlers.card_request.clear_prompt') as clear_prompt_mock, \
-                asynctest.patch('app.handlers.card_request.update_request') as update_mock:
+                asynctest.patch('app.handlers.card_request.update_card_request') as update_mock:
             await card_search_set_chosen(call=call_mock, callback_data=callback_data, state=context_mock)
 
             context_mock.update_data.assert_called()
@@ -323,7 +323,7 @@ class TestCardHandlers:
             builder_mock.assert_called_with('rarity')
             call_mock.message.reply.assert_called_once()
             state_mock.assert_called_with()
-            context_mock.update_data.assert_called_with(prompt_msg_id=prompt_mock.message_id)
+            context_mock.update_data.assert_called_with(card_prompt_msg_id=prompt_mock.message_id)
             call_mock.answer.assert_called_once()
 
     @pytest.mark.asyncio
@@ -339,7 +339,7 @@ class TestCardHandlers:
 
         with asynctest.patch('app.states.cards.BuildCardRequest.base.set') as state_mock, \
                 asynctest.patch('app.handlers.card_request.clear_prompt') as clear_prompt_mock, \
-                asynctest.patch('app.handlers.card_request.update_request') as update_mock:
+                asynctest.patch('app.handlers.card_request.update_card_request') as update_mock:
             await card_search_rarity_chosen(call=call_mock, callback_data=callback_data, state=context_mock)
 
             context_mock.update_data.assert_called()
@@ -369,7 +369,7 @@ class TestCardHandlers:
             builder_mock.assert_called_with(param)
             call_mock.message.reply.assert_called_once()
             state_mock.assert_called_with()
-            context_mock.update_data.assert_called_with(prompt_msg_id=prompt_mock.message_id)
+            context_mock.update_data.assert_called_with(card_prompt_msg_id=prompt_mock.message_id)
             call_mock.answer.assert_called_once()
 
     @pytest.mark.asyncio
@@ -391,7 +391,7 @@ class TestCardHandlers:
 
         with asynctest.patch('app.states.cards.BuildCardRequest.base.set') as state_mock, \
                 asynctest.patch('app.handlers.card_request.clear_prompt') as clear_prompt_mock, \
-                asynctest.patch('app.handlers.card_request.update_request') as update_mock, \
+                asynctest.patch('app.handlers.card_request.update_card_request') as update_mock, \
                 patch('app.services.answer_builders.CardAnswerBuilder.invalid_param') as builder_mock:
             await card_search_digit_param_entered(message=message_mock, state=context_mock)
 
@@ -423,7 +423,7 @@ class TestCardHandlers:
 
         with asynctest.patch('app.states.cards.BuildCardRequest.base.set') as state_mock, \
                 asynctest.patch('app.handlers.card_request.clear_prompt') as clear_prompt_mock, \
-                asynctest.patch('app.handlers.card_request.update_request') as update_mock, \
+                asynctest.patch('app.handlers.card_request.update_card_request') as update_mock, \
                 patch('app.services.answer_builders.CardAnswerBuilder.invalid_param') as builder_mock:
             await card_search_digit_param_entered(message=message_mock, state=context_mock)
 
@@ -456,7 +456,7 @@ class TestCardHandlers:
         context_mock = AsyncMock()
         context_mock.get_data.return_value = card_request_full_data
 
-        with asynctest.patch('app.handlers.card_request.update_request') as update_mock:
+        with asynctest.patch('app.handlers.card_request.update_card_request') as update_mock:
             await card_search_clear(call=call_mock, state=context_mock)
 
             context_mock.update_data.assert_called_once()
@@ -479,7 +479,7 @@ class TestCardHandlers:
             context_mock.update_data.assert_any_call(cardlist=ANY)
             builder_mock.assert_called_with()
             call_mock.message.reply.assert_called_once()
-            context_mock.update_data.assert_any_call(response_msg_id=ANY)
+            context_mock.update_data.assert_any_call(card_response_msg_id=ANY)
             state_mock.assert_called_with()
             call_mock.answer.assert_called_once()
 
@@ -527,7 +527,7 @@ class TestCardHandlers:
             state_mock.assert_called_with()
             builder_mock.assert_called_with()
             call_mock.bot.edit_message_reply_markup.assert_called_once()
-            context_mock.update_data.assert_called_with(response_msg_id=None, cardlist=None, card_detail=None)
+            context_mock.update_data.assert_called_with(card_response_msg_id=None, cardlist=None, card_detail=None)
 
     @pytest.mark.asyncio
     async def test_card_list_pages_unknown(self):

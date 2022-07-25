@@ -17,7 +17,7 @@ logger = logging.getLogger('app')
 
 
 async def card_list_pages(call: types.CallbackQuery, callback_data: dict, state: FSMContext):
-    """ Called when CardList Control button is pressed """
+    """ Called when CardList control button is pressed """
 
     action = callback_data.get('action')
     match action:
@@ -33,12 +33,12 @@ async def card_list_pages(call: types.CallbackQuery, callback_data: dict, state:
                 return
             await state.update_data(cardlist=cardlist)
             data = await state.get_data()
-            if data.get('response_msg_id'):
+            if data.get('card_response_msg_id'):
                 response = AnswerBuilder(data).cards.result_list()
                 with suppress(MessageNotModified):
                     await call.bot.edit_message_text(
                         chat_id=call.message.chat.id,
-                        message_id=data['response_msg_id'],
+                        message_id=data['card_response_msg_id'],
                         text=response.text,
                         reply_markup=response.keyboard
                     )
@@ -50,18 +50,18 @@ async def card_list_pages(call: types.CallbackQuery, callback_data: dict, state:
             await call.message.delete()
             await BuildCardRequest.base.set()
 
-            # Open keyboard again for RequestInfoMessage
+            # Open keyboard again for CardRequestInfoMessage
             data = await state.get_data()
-            if data.get('request_msg_id'):
+            if data.get('card_request_msg_id'):
                 response = AnswerBuilder(data).cards.request_info()
                 with suppress(MessageNotModified):
                     await call.bot.edit_message_reply_markup(
                         chat_id=call.message.chat.id,
-                        message_id=data['request_msg_id'],
+                        message_id=data['card_request_msg_id'],
                         reply_markup=response.keyboard
                     )
 
-            await state.update_data(response_msg_id=None, cardlist=None, card_detail=None)
+            await state.update_data(card_response_msg_id=None, cardlist=None, card_detail=None)
         case _:
             raise ValueError(f'Unknown CardList action: {action}')
 
@@ -86,12 +86,12 @@ async def card_list_get_card(call: types.CallbackQuery, callback_data: dict, sta
 
     await state.update_data(card_detail=card)
     data = await state.get_data()
-    if data.get('response_msg_id'):
+    if data.get('card_response_msg_id'):
         response = AnswerBuilder(data).cards.result_detail()
         with suppress(MessageNotModified):
             await call.bot.edit_message_text(
                 chat_id=call.message.chat.id,
-                message_id=data['response_msg_id'],
+                message_id=data['card_response_msg_id'],
                 text=response.text,
                 reply_markup=response.keyboard
             )
@@ -100,12 +100,12 @@ async def card_list_get_card(call: types.CallbackQuery, callback_data: dict, sta
 async def card_detail_back_to_list(call: types.CallbackQuery, state: FSMContext):
     """ Called when CardDetail Back button is pressed """
     data = await state.get_data()
-    if data.get('response_msg_id'):
+    if data.get('card_response_msg_id'):
         response = AnswerBuilder(data).cards.result_list()
         with suppress(MessageNotModified):
             await call.bot.edit_message_text(
                 chat_id=call.message.chat.id,
-                message_id=data['response_msg_id'],
+                message_id=data['card_response_msg_id'],
                 text=response.text,
                 reply_markup=response.keyboard
             )

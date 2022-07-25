@@ -44,19 +44,19 @@ def card_detail_data() -> dict:
 @pytest.fixture
 def card_request_full_data(card_request_data) -> dict:
     """ Full context data for build-request handlers """
-    return card_request_data | {'request_msg_id': 1111, 'prompt_msg_id': 1112}
+    return card_request_data | {'card_request_msg_id': 1111, 'card_prompt_msg_id': 1112}
 
 
 @pytest.fixture
 def card_list_full_data(card_list_data) -> dict:
     """ Full context data for cardlist handlers """
-    return card_list_data | {'response_msg_id': 1113}
+    return card_list_data | {'card_response_msg_id': 1113}
 
 
 @pytest.fixture
 def card_detail_full_data(card_detail_data) -> dict:
     """ Full context data for carddetail handlers """
-    return card_detail_data | {'response_msg_id': 1113}
+    return card_detail_data | {'card_response_msg_id': 1113}
 
 
 @pytest.fixture
@@ -170,4 +170,4 @@ def deck_detail_data() -> dict:
 @pytest.fixture
 def deck_detail_full_data(deck_detail_data) -> dict:
     """ Full context data for build-request handlers """
-    return deck_detail_data | {'request_msg_id': 1111, 'prompt_msg_id': 1112, 'response_msg_id': 1113}
+    return deck_detail_data | {'card_request_msg_id': 1111, 'card_prompt_msg_id': 1112, 'card_response_msg_id': 1113}

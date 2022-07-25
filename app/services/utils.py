@@ -8,11 +8,17 @@ import logging
 import re
 
 from app.exceptions import DeckstringError
+from app.config import config, MAX_CARD_NAME_LENGTH
 from .api import RequestDecodeDeck
 from .answer_builders import AnswerBuilder
 from .messages import CommonMessage
 
 logger = logging.getLogger('app')
+
+
+def check_card_name(text: str) -> bool:
+    """ Check whether ``text`` can be placed in the request as a ``name`` parameter """
+    return len(text) <= MAX_CARD_NAME_LENGTH
 
 
 def is_positive_integer(string: str) -> bool:
@@ -93,7 +99,7 @@ def is_valid_deckstring(deckstring: str) -> bool:
 async def clear_all(message: types.Message, state: FSMContext):
     """ Delete all stored messages """
     data = await state.get_data()
-    for key in ['request_msg_id', 'prompt_msg_id', 'response_msg_id']:
+    for key in config.storage.MSG_IDS:
         if data.get(key):
             with suppress(MessageToDeleteNotFound):
                 await message.bot.delete_message(chat_id=message.chat.id, message_id=data[key])
@@ -102,10 +108,10 @@ async def clear_all(message: types.Message, state: FSMContext):
 
 async def clear_prompt(message: types.Message, data: dict, state: FSMContext):
     """ Delete message for request parameter clarification, then forget it """
-    if data.get('prompt_msg_id'):
+    if data.get('card_prompt_msg_id'):
         with suppress(MessageToDeleteNotFound):
-            await message.bot.delete_message(message.chat.id, data['prompt_msg_id'])
-        await state.update_data(prompt_msg_id=None)
+            await message.bot.delete_message(message.chat.id, data['card_prompt_msg_id'])
+        await state.update_data(card_prompt_msg_id=None)
 
 
 async def deck_decode(message: types.Message, state: FSMContext, deckstring: str):

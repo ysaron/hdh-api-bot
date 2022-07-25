@@ -8,63 +8,63 @@ from contextlib import suppress
 import logging
 
 from app.services.keyboards import cardparam_cd, command_cd
-from app.services.utils import is_positive_integer, clear_all, clear_prompt, paginate_list
+from app.services.utils import is_positive_integer, clear_all, clear_prompt, paginate_list, check_card_name
 from app.services.answer_builders import AnswerBuilder
 from app.services.api import RequestCards
 from app.services.messages import CommonMessage
 from app.states.cards import BuildCardRequest, WaitCardNumericParam, CardResponse
-from app.config import hs_data, MAX_CARDS_IN_RESPONSE, MAX_CARD_NAME_LENGTH
+from app.config import hs_data, MAX_CARDS_IN_RESPONSE
 from app.exceptions import EmptyRequestError
 
 logger = logging.getLogger('app')
 
 
-async def update_request(message: types.Message, state: FSMContext, request_data: dict):
-    """ Update request and RequestInfoMessage """
+async def update_card_request(message: types.Message, state: FSMContext, request_data: dict):
+    """ Update request and CardRequestInfoMessage """
 
     data = await state.get_data()
     answer = AnswerBuilder(data).cards.request_info()
 
-    if request_data.get('request_msg_id'):
+    if request_data.get('card_request_msg_id'):
         with suppress(MessageNotModified, MessageToEditNotFound):
             await message.bot.edit_message_text(
                 answer.text,
                 chat_id=message.chat.id,
-                message_id=request_data['request_msg_id'],
+                message_id=request_data['card_request_msg_id'],
                 reply_markup=answer.keyboard,
             )
 
 
 async def card_search_start(message: types.Message, state: FSMContext):
-    """ Start a new card request, send RequestInfoMessage """
+    """ Start a new card request, send CardRequestInfoMessage """
     data = await state.get_data()
     answer = AnswerBuilder(data).cards.request_info()
 
     # To remove ReplyKeyboard
-    await message.answer(text='Starting a new card search...', reply_markup=types.ReplyKeyboardRemove())
+    await message.answer(text=CommonMessage.NEW_CARD_SEARCH, reply_markup=types.ReplyKeyboardRemove())
 
     request_message = await message.answer(text=answer.text, reply_markup=answer.keyboard)
     await BuildCardRequest.base.set()
-    await state.update_data(request_msg_id=request_message.message_id)
+    await state.update_data(card_request_msg_id=request_message.message_id)
 
 
 async def card_search_param_cancel(call: types.CallbackQuery, state: FSMContext):
-    """ Return to RequestInfoMessage without changes """
+    """ Return to CardRequestInfoMessage without changes """
     await call.message.delete()
-    await state.update_data(prompt_msg_id=None)
+    await state.update_data(card_prompt_msg_id=None)
     await BuildCardRequest.base.set()
 
 
 async def card_search_param_clear(call: types.CallbackQuery, callback_data: dict, state: FSMContext):
-    """ Remove selected parameter from the request """
+    """ Remove selected parameter from the card request """
     await call.message.delete()
     await BuildCardRequest.base.set()
 
     param = callback_data['param']
-    await state.update_data({param: None, 'prompt_msg_id': None})
+    await state.update_data({param: None, 'card_prompt_msg_id': None})
 
     request_data = await state.get_data()
-    await update_request(call.message, state, request_data)
+    await update_card_request(call.message, state, request_data)
 
 
 async def card_search_name_input(call: types.CallbackQuery, state: FSMContext):
@@ -73,7 +73,7 @@ async def card_search_name_input(call: types.CallbackQuery, state: FSMContext):
     answer = AnswerBuilder(data).cards.wait_param('name')
     prompt = await call.message.reply(answer.text, reply_markup=answer.keyboard)
     await BuildCardRequest.wait_name.set()
-    await state.update_data(prompt_msg_id=prompt.message_id)
+    await state.update_data(card_prompt_msg_id=prompt.message_id)
     await call.answer()
 
 
@@ -82,20 +82,20 @@ async def card_search_name_entered(message: types.Message, state: FSMContext):
     data = await state.get_data()
     await message.delete()
 
-    if len(message.text) <= MAX_CARD_NAME_LENGTH:
+    if check_card_name(message.text):
         await clear_prompt(message, data, state)
         await BuildCardRequest.base.set()
         await state.update_data(name=message.text)
 
-        await update_request(message, state, data)
+        await update_card_request(message, state, data)
     else:
-        if data.get('prompt_msg_id'):
+        if data.get('card_prompt_msg_id'):
             answer = AnswerBuilder(data).cards.invalid_param('name')
             with suppress(MessageNotModified):
                 await message.bot.edit_message_text(
                     answer.text,
                     chat_id=message.chat.id,
-                    message_id=data['prompt_msg_id'],
+                    message_id=data['card_prompt_msg_id'],
                     reply_markup=answer.keyboard,
                 )
 
@@ -106,7 +106,7 @@ async def card_search_type_input(call: types.CallbackQuery, state: FSMContext):
     answer = AnswerBuilder(data).cards.wait_param('ctype')
     prompt = await call.message.reply(answer.text, reply_markup=answer.keyboard)
     await BuildCardRequest.wait_type.set()
-    await state.update_data(prompt_msg_id=prompt.message_id)
+    await state.update_data(card_prompt_msg_id=prompt.message_id)
     await call.answer()
 
 
@@ -115,7 +115,7 @@ async def card_search_type_chosen(call: types.CallbackQuery, callback_data: dict
     data = await state.get_data()
     type_sign = callback_data['param']
 
-    # Обработка смены типа после ввода численных параметров
+    # Processing the type change after entering numerical parameters
     match type_sign:
         case 'M':
             await state.update_data(armor=None, durability=None)
@@ -130,7 +130,7 @@ async def card_search_type_chosen(call: types.CallbackQuery, callback_data: dict
     await BuildCardRequest.base.set()
     await state.update_data(ctype=type_sign)
 
-    await update_request(call.message, state, data)
+    await update_card_request(call.message, state, data)
 
 
 async def card_search_class_input(call: types.CallbackQuery, state: FSMContext):
@@ -139,12 +139,12 @@ async def card_search_class_input(call: types.CallbackQuery, state: FSMContext):
     answer = AnswerBuilder(data).cards.wait_param('classes')
     prompt = await call.message.reply(answer.text, reply_markup=answer.keyboard)
     await BuildCardRequest.wait_class.set()
-    await state.update_data(prompt_msg_id=prompt.message_id)
+    await state.update_data(card_prompt_msg_id=prompt.message_id)
     await call.answer()
 
 
 async def card_search_class_chosen(call: types.CallbackQuery, callback_data: dict, state: FSMContext):
-    """ Process the selected class """
+    """ Process the selected card class """
     data = await state.get_data()
 
     # not `default=[]`, because `data['classes']` may not exist and may be None
@@ -158,7 +158,7 @@ async def card_search_class_chosen(call: types.CallbackQuery, callback_data: dic
     await BuildCardRequest.base.set()
     await state.update_data(classes=current_classes)
 
-    await update_request(call.message, state, data)
+    await update_card_request(call.message, state, data)
 
 
 async def card_search_set_input(call: types.CallbackQuery, state: FSMContext):
@@ -167,7 +167,7 @@ async def card_search_set_input(call: types.CallbackQuery, state: FSMContext):
     answer = AnswerBuilder(data).cards.wait_param('cset')
     prompt = await call.message.reply(answer.text, reply_markup=answer.keyboard)
     await BuildCardRequest.wait_set.set()
-    await state.update_data(prompt_msg_id=prompt.message_id)
+    await state.update_data(card_prompt_msg_id=prompt.message_id)
     await call.answer()
 
 
@@ -178,27 +178,27 @@ async def card_search_set_chosen(call: types.CallbackQuery, callback_data: dict,
     await BuildCardRequest.base.set()
     await state.update_data(cset=callback_data['param'])
 
-    await update_request(call.message, state, data)
+    await update_card_request(call.message, state, data)
 
 
 async def card_search_rarity_input(call: types.CallbackQuery, state: FSMContext):
-    """ Prepare to receive a rarity """
+    """ Prepare to receive a card rarity """
     data = await state.get_data()
     answer = AnswerBuilder(data).cards.wait_param('rarity')
     prompt = await call.message.reply(answer.text, reply_markup=answer.keyboard)
     await BuildCardRequest.wait_rarity.set()
-    await state.update_data(prompt_msg_id=prompt.message_id)
+    await state.update_data(card_prompt_msg_id=prompt.message_id)
     await call.answer()
 
 
 async def card_search_rarity_chosen(call: types.CallbackQuery, callback_data: dict, state: FSMContext):
-    """ Process the selected rarity """
+    """ Process the selected card rarity """
     data = await state.get_data()
     await clear_prompt(call.message, data, state)
     await BuildCardRequest.base.set()
     await state.update_data(rarity=callback_data['param'])
 
-    await update_request(call.message, state, data)
+    await update_card_request(call.message, state, data)
 
 
 async def card_search_digit_param_input(call: types.CallbackQuery, callback_data: dict, state: FSMContext):
@@ -225,7 +225,7 @@ async def card_search_digit_param_input(call: types.CallbackQuery, callback_data
 
     prompt = await call.message.reply(answer.text, reply_markup=answer.keyboard)
 
-    await state.update_data(prompt_msg_id=prompt.message_id)
+    await state.update_data(card_prompt_msg_id=prompt.message_id)
     await call.answer()
 
 
@@ -239,15 +239,15 @@ async def card_search_digit_param_entered(message: types.Message, state: FSMCont
         await BuildCardRequest.base.set()
         await state.update_data({param: message.text})
 
-        await update_request(message, state, data)
+        await update_card_request(message, state, data)
     else:
-        if data.get('prompt_msg_id'):
+        if data.get('card_prompt_msg_id'):
             answer = AnswerBuilder(data).cards.invalid_param(param)
             with suppress(MessageNotModified):
                 await message.bot.edit_message_text(
                     answer.text,
                     chat_id=message.chat.id,
-                    message_id=data['prompt_msg_id'],
+                    message_id=data['card_prompt_msg_id'],
                     reply_markup=answer.keyboard,
                 )
     await message.delete()
@@ -267,7 +267,7 @@ async def card_search_collectible_input(call: types.CallbackQuery, state: FSMCon
 
 
 async def card_search_close(call: types.CallbackQuery, state: FSMContext):
-    """ Called when Close button of RequestInfoMessage is pressed """
+    """ Called when Close button of CardRequestInfoMessage is pressed """
     await clear_all(call.message, state)
     data = await state.get_data()
     answer = AnswerBuilder(data).common.cancel()
@@ -281,12 +281,12 @@ async def card_search_close(call: types.CallbackQuery, state: FSMContext):
 async def card_search_clear(call: types.CallbackQuery, state: FSMContext):
     """
     Clear all request parameters
-    Called when Clear button of RequestInfoMessage is pressed
+    Called when Clear button of CardRequestInfoMessage is pressed
     """
     await state.update_data(**dict.fromkeys(hs_data.card_params, None))
     data = await state.get_data()
     await call.answer()
-    await update_request(call.message, state, data)
+    await update_card_request(call.message, state, data)
 
 
 async def card_search(call: types.CallbackQuery, state: FSMContext):
@@ -323,7 +323,7 @@ async def card_search(call: types.CallbackQuery, state: FSMContext):
     try:
         resp_msg = await call.message.reply(text=response.text, reply_markup=response.keyboard)
 
-        # Close keyboard for RequestInfoMessage
+        # Close keyboard for CardRequestInfoMessage
         await call.message.edit_reply_markup()
     except BadRequest:
         resp_msg = await call.bot.send_message(
@@ -331,7 +331,7 @@ async def card_search(call: types.CallbackQuery, state: FSMContext):
             text=response.text,
             reply_markup=response.keyboard,
         )
-    await state.update_data(response_msg_id=resp_msg.message_id)
+    await state.update_data(card_response_msg_id=resp_msg.message_id)
     await CardResponse.list.set()
     await call.answer()
 

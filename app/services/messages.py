@@ -279,6 +279,7 @@ class CommonMessage:
             'Available commands:\n/cards\n/decks\n/decode'
     CANCEL = '<b>All activity is cancelled. You\'re in the main menu.</b>\n\n' \
              'Available commands:\n/cards\n/decks\n/decode'
+    NEW_CARD_SEARCH = 'Starting a new card search...'
     DECODE_DECK_PROMPT = 'Send me the Hearthstone deck code, for example:\n' \
                          '<pre>AAEBAaIHBPYC0OMCt7MEv84EDYgH9bsC8OYCqssD590DqusD/u4D0/MDjfQDofQDvYAE958E/KUEAA==</pre>'
     DECODE_ERROR = f'❗️ Error: probably invalid deckstring'

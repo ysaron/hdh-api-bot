@@ -8,7 +8,7 @@ import ujson
 
 from .exceptions import ArgumentError, ConfigurationError
 
-DEBUG = False        # False if running by Docker
+DEBUG = True        # False if running by Docker
 if DEBUG:
     from dotenv import load_dotenv
     load_dotenv()
@@ -36,6 +36,7 @@ class TgBot:
 @dataclass(frozen=True)
 class RedisConf:
     PASSWORD: str
+    MSG_IDS: list[str]
 
 
 @dataclass(frozen=True)
@@ -142,6 +143,11 @@ def load_config() -> Config:
         ),
         storage=RedisConf(
             PASSWORD=redis_password,
+            MSG_IDS=[
+                'card_request_msg_id',
+                'card_prompt_msg_id',
+                'card_response_msg_id',
+            ]
         ),
         api=HsDeckHelperAPI(
             DOMAIN=api_domain,
