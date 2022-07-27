@@ -18,6 +18,7 @@ DATA_DIR = BASE_DIR / 'app' / 'data'
 
 MAX_CARD_NAME_LENGTH = 30
 MAX_CARDS_IN_RESPONSE = 90
+MAX_DECKS_IN_RESPONSE = 90
 
 logger = logging.getLogger('app')
 logging.basicConfig(
@@ -80,13 +81,22 @@ class HSSet:
 
 
 @dataclass(frozen=True)
+class HSFormat:
+    en: str
+    ru: str
+    num: int
+
+
+@dataclass(frozen=True)
 class HSEntities:
     types: list[HSType]
     classes: list[HSClass]
     rarities: list[HSRarity]
     sets: list[HSSet]
+    formats: list[HSFormat]
     card_params: list[str]
     card_digit_params: list[str]
+    deck_params: list[str]
 
     def gettype(self, sign: str = None, name: str = None) -> HSType:
         """
@@ -147,6 +157,9 @@ def load_config() -> Config:
                 'card_request_msg_id',
                 'card_prompt_msg_id',
                 'card_response_msg_id',
+                'deck_request_msg_id',
+                'deck_prompt_msg_id',
+                'deck_response_msg_id',
             ]
         ),
         api=HsDeckHelperAPI(
@@ -165,10 +178,12 @@ def load_hearthstone_data() -> HSEntities:
         rars = [HSRarity(en=r['enUS'], ru=r['ruRU'], sign=r['sign'], emoji=r['emoji'])
                 for r in ent['rarities'].values()]
         sets = [HSSet(en=s['enUS'], ru=s['ruRU']) for s in ent['sets'].values()]
+        formats = [HSFormat(en=f['name_en'], ru=f['name_ru'], num=f['num']) for f in ent['formats']]
         card_digit_params = ['cost', 'attack', 'health', 'durability', 'armor']
         card_params = ['name', 'ctype', 'classes', 'cset', 'rarity'] + card_digit_params
-        return HSEntities(types=types, classes=classes, rarities=rars, sets=sets,
-                          card_params=card_params, card_digit_params=card_digit_params)
+        deck_params = ['dformat', 'dclass', 'deck_created_after', 'deck_cards']
+        return HSEntities(types=types, classes=classes, rarities=rars, sets=sets, formats=formats,
+                          card_params=card_params, card_digit_params=card_digit_params, deck_params=deck_params)
 
 
 try:
@@ -176,7 +191,8 @@ try:
     config = load_config()
     hs_data = load_hearthstone_data()
 
-    BASE_URL = f'http://{config.api.DOMAIN}/api/v1/'
+    BASE_URL = f'http://{config.api.DOMAIN}'
+    BASE_API_URL = f'{BASE_URL}/api/v1/'
     CARD_RENDER_BASE_URL = f'http://{config.api.DOMAIN}/media/cards/'
 except Exception as e:
     logger.error(f'Configuration error: {e}')

@@ -1,6 +1,6 @@
 from aiogram.utils import markdown as md
 
-from app.config import hs_data, CARD_RENDER_BASE_URL
+from app.config import hs_data, CARD_RENDER_BASE_URL, BASE_URL
 
 
 class TextBuilder:
@@ -21,7 +21,7 @@ class TextBuilder:
 
 
 class CardRequestInfo(TextBuilder):
-    """ Encapsulates text of RequestInfoMessage """
+    """ Encapsulates text of CardRequestInfoMessage """
 
     def __init__(self, data: dict):
         super().__init__()
@@ -41,8 +41,6 @@ class CardRequestInfo(TextBuilder):
         self.armor = 'Armor: <b>{}</b>'
 
     def format(self):
-        """ Format and collect rows """
-
         self.rows.append(self.header)
         self.rows.append(self.language)
         self.rows.append(self.collectible)
@@ -222,7 +220,7 @@ class DeckDetailInfo(TextBuilder):
 
     def __init__(self, data: dict):
         super().__init__()
-        self.deck: dict = data['deck']
+        self.deck: dict = data['deck_detail']
         self.dformat = self.deck.get('deck_format', 'UNKNOWN')
         self.dclass = self.deck.get('deck_class', 'UNKNOWN')
         self.date = self.deck.get('created', '??.??.????')
@@ -230,20 +228,100 @@ class DeckDetailInfo(TextBuilder):
         self.string = self.deck['string']
 
     def format(self):
-        header = f'<b>►►► <u>{self.dformat} {self.dclass} deck</u> ◄◄◄</b>'
-        self.rows.append(header)
+        deck_id = self.deck["id"]
+        link = md.hlink(f'{self.dformat} {self.dclass} deck (id{deck_id})', url=f'{BASE_URL}/en/decks/{deck_id}')
+        self.rows.append(f'<b>► ► ► {link} ◄ ◄ ◄</b>')
         self.rows.append(f'\nCreated: <b>{self.date}</b>\n')
 
         for card in self.cards:
             cost = card["card"]["cost"]
+            url = f'{CARD_RENDER_BASE_URL}en/{card["card"]["card_id"]}.png'
+            try:
+                rarity = hs_data.getrarity(name=card['card']['rarity'])
+                ctype = hs_data.gettype(name=card['card']['card_type'])
+                prefix = f'{ctype.emoji} {rarity.emoji}'
+            except (KeyError, StopIteration):
+                prefix = '❓ ❔'
             row = md.text(
                 f'{card["number"]}x',
                 f'({cost}){"  " if cost < 10 else ""}',
-                md.hlink(card["card"]["name"], url=f'{CARD_RENDER_BASE_URL}en/{card["card"]["card_id"]}.png'),
+                prefix,
+                f'{md.hlink(card["card"]["name"], url=url)}',
             )
             self.rows.append(row)
 
-        self.rows.append(f'\n<pre>{self.string}</pre>')
+        self.rows.append('')
+        self.rows.append(md.hcode(self.string))
+
+    def as_text(self) -> str:
+        if not self.rows:
+            self.format()
+        return super().as_text()
+
+
+class DeckRequestInfo(TextBuilder):
+    """ Encapsulates text of DeckRequestInfoMessage """
+
+    def __init__(self, data: dict):
+        super().__init__()
+        self.data = data
+        self.header = '<b>►►► <u>Build request</u> ◄◄◄</b>'
+        self.language = 'Language: <b>English</b>'
+        self.dformat = 'Format: <b>{}</b>'
+        self.dclass = 'Class: <b>{}</b>'
+        self.created_after = 'Created after: <b>{}</b>'
+        self.dcards = 'Cards: {}'
+
+    def format(self):
+        self.rows.append(self.header)
+        self.rows.append(self.language)
+        if self.data.get('dformat'):
+            self.rows.append(self.dformat.format(self.data['dformat']))
+        if self.data.get('dclass'):
+            self.rows.append(self.dclass.format(self.data['dclass']))
+        if self.data.get('deck_created_after'):
+            self.rows.append(self.created_after.format(self.data['deck_created_after']))
+
+    def as_text(self) -> str:
+        if not self.rows:
+            self.format()
+        return super().as_text()
+
+
+class DeckListInfo(TextBuilder):
+    """ Encapsulates text of DeckListMessage """
+
+    def __init__(self, data: dict):
+        self.__decklist: list[list[dict]] = data['deck_list']['decks']
+        self.page: int = data['deck_list']['page']
+        self.total = data['deck_list']['total']
+        self.__decks: list[dict] = self.__decklist[self.page - 1] if self.__decklist else []
+        self.header = f'Decks found: <b>{self.total}</b>\n'
+        super().__init__()
+
+    def format(self):
+        self.rows.append(self.header)
+
+        if self.__decks:
+            for idx, deck in enumerate(self.__decks, start=1):
+                row = md.text(
+                    md.text(
+                        f'{idx}.',
+                        md.hlink(
+                            f'{deck["deck_format"]} {deck["deck_class"]} deck (id{deck["id"]})',
+                            url=f'{BASE_URL}/en/decks/{deck["id"]}'
+                        ),
+                    ),
+                    md.hbold(deck["created"]),
+                    md.hcode(deck["string"]),
+                    sep='\n'
+                )
+                self.rows.append(row)
+                self.rows.append(' ')
+
+            self.rows.append(f'Get detailed information:')
+        else:
+            self.rows.append('Try changing the request parameters.')
 
     def as_text(self) -> str:
         if not self.rows:
@@ -272,6 +350,14 @@ class TextInfo:
     def deck_detail(self):
         return DeckDetailInfo(self.__data)
 
+    @property
+    def deck_request(self):
+        return DeckRequestInfo(self.__data)
+
+    @property
+    def deck_list(self):
+        return DeckListInfo(self.__data)
+
 
 class CommonMessage:
     """ Static common messages """
@@ -280,6 +366,7 @@ class CommonMessage:
     CANCEL = '<b>All activity is cancelled. You\'re in the main menu.</b>\n\n' \
              'Available commands:\n/cards\n/decks\n/decode'
     NEW_CARD_SEARCH = 'Starting a new card search...'
+    NEW_DECK_SEARCH = 'Starting a new deck search...'
     DECODE_DECK_PROMPT = 'Send me the Hearthstone deck code, for example:\n' \
                          '<pre>AAEBAaIHBPYC0OMCt7MEv84EDYgH9bsC8OYCqssD590DqusD/u4D0/MDjfQDofQDvYAE958E/KUEAA==</pre>'
     DECODE_ERROR = f'❗️ Error: probably invalid deckstring'
@@ -296,17 +383,25 @@ class InvalidInput:
     """ Hints on how to enter the parameter correctly """
     NAME_TOO_LONG = 'Name <b>must not</b> exceed <i>30</i> characters. Try again:'
     MUST_BE_NUMBER = 'This value <b>must</b> be a positive integer. Try again:'
+    INVALID_DATE = 'The date must have the format <i>dd.mm.yyyy</i> (for example, <i>15.04.2022</i>).\nTry again:'
 
 
 class CardParamPrompt:
-    """ Messages prompting you to enter or select parameters """
-    NAME = 'Enter a <b>name</b>:'
-    CTYPE = 'Select a <b>type</b>:'
-    CLASSES = 'Select a <b>class</b>:'
-    CSET = 'Select a <b>set</b>:'
-    RARITY = 'Select a <b>rarity</b>:'
-    COST = 'Enter <b>mana cost</b>:'
-    ATTACK = 'Enter <b>attack</b> value:'
-    HEALTH = 'Enter <b>health</b> value:'
-    DURABILITY = 'Enter <b>durability</b> value:'
-    ARMOR = 'Enter <b>armor</b> value:'
+    """ Messages prompting you to enter or select card parameters """
+    NAME = 'Enter the <b>name</b>:'
+    CTYPE = 'Select the <b>type</b>:'
+    CLASSES = 'Select the <b>class</b>:'
+    CSET = 'Select the <b>set</b>:'
+    RARITY = 'Select the <b>rarity</b>:'
+    COST = 'Enter the <b>mana cost</b>:'
+    ATTACK = 'Enter the <b>attack</b> value:'
+    HEALTH = 'Enter the <b>health</b> value:'
+    DURABILITY = 'Enter the <b>durability</b> value:'
+    ARMOR = 'Enter the <b>armor</b> value:'
+
+
+class DeckParamPrompt:
+    """ Messages prompting you to enter or select deck parameters """
+    DFORMAT = 'Select the <b>format</b>:'
+    DCLASS = 'Select the <b>class</b>:'
+    DECK_CREATED_AFTER = 'Enter the date in the format <i>dd.mm.yyyy</i>'

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from .messages import TextInfo, CommonMessage, InvalidInput, CardParamPrompt
+from .messages import TextInfo, CommonMessage, InvalidInput, CardParamPrompt, DeckParamPrompt
 from .keyboards import Keyboard, KeyboardMarkup
 
 
@@ -44,19 +44,19 @@ class CardAnswerBuilder:
         self.__data = data
 
     def request_info(self) -> BotAnswer:
-        """ Create RequestInfoMessage """
+        """ Create CardRequestInfoMessage """
         text = TextInfo(self.__data).card_request.as_text()
         keyboard = Keyboard(self.__data).cards.request_info()
         return BotAnswer(text=text, keyboard=keyboard)
 
     def wait_param(self, param: str) -> BotAnswer:
-        """ Create message to receive parameter """
+        """ Create message to receive card parameter """
         text = getattr(CardParamPrompt, param.upper())
         keyboard = Keyboard(self.__data).cards.wait_param(param)
         return BotAnswer(text=text, keyboard=keyboard)
 
     def invalid_param(self, param: str) -> BotAnswer:
-        """ Create message to receive parameters after an unsuccessful attempt """
+        """ Create message to receive card parameters after an unsuccessful attempt """
         match param:
             case 'name':
                 text = InvalidInput.NAME_TOO_LONG
@@ -100,6 +100,41 @@ class DeckAnswerBuilder:
         """ Creates message with deck detail info """
         text = TextInfo(self.__data).deck_detail.as_text()
         return BotAnswer(text=text, keyboard=None)
+
+    def request_info(self) -> BotAnswer:
+        """ Create DeckRequestInfoMessage """
+        text = TextInfo(self.__data).deck_request.as_text()
+        keyboard = Keyboard(self.__data).decks.request_info()
+        return BotAnswer(text=text, keyboard=keyboard)
+
+    def wait_param(self, param: str) -> BotAnswer:
+        """ Create message to receive deck parameter """
+        text = getattr(DeckParamPrompt, param.upper())
+        keyboard = Keyboard(self.__data).decks.wait_param(param)
+        return BotAnswer(text=text, keyboard=keyboard)
+
+    def invalid_param(self, param: str) -> BotAnswer:
+        """ Create message to receive deck parameters after an unsuccessful attempt """
+        match param:
+            case 'deck_created_after':
+                text = InvalidInput.INVALID_DATE
+            case _:
+                text = 'Unknown error. Try again'
+
+        keyboard = Keyboard(self.__data).decks.wait_param(param)
+        return BotAnswer(text=text, keyboard=keyboard)
+
+    def result_list(self) -> BotAnswer:
+        """ Create paginated message with list of requested decks """
+        text = TextInfo(self.__data).deck_list.as_text()
+        keyboard = Keyboard(self.__data).decks.result_list()
+        return BotAnswer(text=text, keyboard=keyboard)
+
+    def result_detail(self) -> BotAnswer:
+        """ Create message with detail deck info """
+        text = TextInfo(self.__data).deck_detail.as_text()
+        keyboard = Keyboard(self.__data).decks.result_detail()
+        return BotAnswer(text=text, keyboard=keyboard)
 
 
 class AnswerBuilder:

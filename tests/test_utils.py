@@ -98,6 +98,6 @@ async def test_deck_decode(pure_deckstring, deck_detail_data):
         await utils.deck_decode(message=message_mock, state=context_mock, deckstring=pure_deckstring)
 
         api_mock.assert_called_with({'d': pure_deckstring})
-        context_mock.update_data.assert_called_with(deck=deck_detail_data)
+        context_mock.update_data.assert_called_with(deck_detail=deck_detail_data)
         builder_mock.assert_called_with()
         message_mock.reply.assert_called()

@@ -18,7 +18,6 @@ logger = logging.getLogger('app')
 
 async def card_list_pages(call: types.CallbackQuery, callback_data: dict, state: FSMContext):
     """ Called when CardList control button is pressed """
-
     action = callback_data.get('action')
     match action:
         case 'left' | 'right':
@@ -68,7 +67,8 @@ async def card_list_pages(call: types.CallbackQuery, callback_data: dict, state:
 
 async def card_list_get_card(call: types.CallbackQuery, callback_data: dict, state: FSMContext):
     """
-    Called when CardList Control button is pressed
+    Called when CardList Card button is pressed
+
     Send CardDetailMessage
     """
 

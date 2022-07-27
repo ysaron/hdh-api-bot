@@ -63,8 +63,8 @@ async def card_search_param_clear(call: types.CallbackQuery, callback_data: dict
     param = callback_data['param']
     await state.update_data({param: None, 'card_prompt_msg_id': None})
 
-    request_data = await state.get_data()
-    await update_card_request(call.message, state, request_data)
+    data = await state.get_data()
+    await update_card_request(call.message, state, data)
 
 
 async def card_search_name_input(call: types.CallbackQuery, state: FSMContext):
@@ -253,12 +253,12 @@ async def card_search_digit_param_entered(message: types.Message, state: FSMCont
     await message.delete()
 
 
-async def card_search_language_input(call: types.CallbackQuery, state: FSMContext):
+async def card_search_language_input(call: types.CallbackQuery):
     """ Prepare to receive a language """
     await call.answer('Coming soon')
 
 
-async def card_search_collectible_input(call: types.CallbackQuery, state: FSMContext):
+async def card_search_collectible_input(call: types.CallbackQuery):
     """ Prepare to receive a collectibility """
     await call.answer('Coming soon. Or not')
 
@@ -280,7 +280,8 @@ async def card_search_close(call: types.CallbackQuery, state: FSMContext):
 
 async def card_search_clear(call: types.CallbackQuery, state: FSMContext):
     """
-    Clear all request parameters
+    Clear all card request parameters
+
     Called when Clear button of CardRequestInfoMessage is pressed
     """
     await state.update_data(**dict.fromkeys(hs_data.card_params, None))
@@ -292,7 +293,8 @@ async def card_search_clear(call: types.CallbackQuery, state: FSMContext):
 async def card_search(call: types.CallbackQuery, state: FSMContext):
     """
     Perform API request with stored parameters
-    Return formatted response
+
+    Send formatted response
     """
 
     data = await state.get_data()
@@ -412,22 +414,22 @@ def register_card_request_handlers(dp: Dispatcher):
     )
     dp.register_callback_query_handler(
         card_search_type_chosen,
-        cardparam_cd.filter(action='add'),
+        cardparam_cd.filter(action='submit'),
         state=BuildCardRequest.wait_type,
     )
     dp.register_callback_query_handler(
         card_search_class_chosen,
-        cardparam_cd.filter(action='add'),
+        cardparam_cd.filter(action='submit'),
         state=BuildCardRequest.wait_class,
     )
     dp.register_callback_query_handler(
         card_search_set_chosen,
-        cardparam_cd.filter(action='add'),
+        cardparam_cd.filter(action='submit'),
         state=BuildCardRequest.wait_set,
     )
     dp.register_callback_query_handler(
         card_search_rarity_chosen,
-        cardparam_cd.filter(action='add'),
+        cardparam_cd.filter(action='submit'),
         state=BuildCardRequest.wait_rarity,
     )
     dp.register_message_handler(

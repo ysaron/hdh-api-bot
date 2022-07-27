@@ -11,10 +11,6 @@ from app.exceptions import DeckstringError
 logger = logging.getLogger('app')
 
 
-async def deck_search_start(message: types.Message, state: FSMContext):
-    await message.reply(text='Coming soon!')
-
-
 async def deck_decode_start(message: types.Message):
     """ Prompt to enter the deck code """
     answer = AnswerBuilder({}).decks.decode_prompt()
@@ -41,14 +37,7 @@ async def deck_decode_from_decklist(message: types.Message, state: FSMContext):
     await deck_decode(message, state, deckstring=deckstring)
 
 
-def register_deck_handlers(dp: Dispatcher):
-    dp.register_message_handler(deck_search_start, commands='decks', state='*')
-    dp.register_message_handler(
-        deck_search_start,
-        filters.Text(equals='decks', ignore_case=True),
-        state='*',
-    )
-
+def register_deck_decode_handlers(dp: Dispatcher):
     dp.register_message_handler(deck_decode_start, commands='decode', state='*')
     dp.register_message_handler(
         deck_decode_start,

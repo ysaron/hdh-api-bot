@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, call, ANY, patch
 
 from app.handlers.card_request import *
 from app.handlers.card_response import *
-from app.handlers.decks import *
+from app.handlers.deck_decode import *
 from app.handlers.common import cmd_start, cmd_cancel
 
 
@@ -585,8 +585,8 @@ class TestDeckHandlers:
         message_mock = AsyncMock(text=pure_deckstring)
         context_mock = AsyncMock()
 
-        with asynctest.patch('app.handlers.decks.deck_decode') as decode_mock, \
-                patch('app.handlers.decks.is_valid_deckstring') as validation_mock:
+        with asynctest.patch('app.handlers.deck_decode.deck_decode') as decode_mock, \
+                patch('app.handlers.deck_decode.is_valid_deckstring') as validation_mock:
             await deck_decode_from_deckstring(message=message_mock, state=context_mock)
 
             validation_mock.assert_called_with(message_mock.text)
@@ -597,11 +597,10 @@ class TestDeckHandlers:
         message_mock = AsyncMock(text=decklist_from_game)
         context_mock = AsyncMock()
 
-        with asynctest.patch('app.handlers.decks.deck_decode') as decode_mock, \
-                patch('app.handlers.decks.extract_deckstring') as extract_mock:
+        with asynctest.patch('app.handlers.deck_decode.deck_decode') as decode_mock, \
+                patch('app.handlers.deck_decode.extract_deckstring') as extract_mock:
             extract_mock.return_value = pure_deckstring
             await deck_decode_from_decklist(message=message_mock, state=context_mock)
 
             extract_mock.assert_called_with(decklist=message_mock.text)
             decode_mock.assert_called_with(message_mock, context_mock, deckstring=pure_deckstring)
-

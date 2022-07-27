@@ -9,6 +9,8 @@ Btns = list[tuple[str | InlineKeyboardButton, ...] | str]
 command_cd = CallbackData('cmd', 'scope', 'action')
 cardparam_cd = CallbackData('cpd', 'param', 'action')
 cardlist_cd = CallbackData('cld', 'id', 'action')
+deckparam_cd = CallbackData('dpd', 'param', 'action')
+decklist_cd = CallbackData('dld', 'id', 'action')
 
 
 class KeyboardBuilder:
@@ -76,7 +78,7 @@ class CommonKeyboardBuilder(KeyboardBuilder):
 class CardKeyboardBuilder(KeyboardBuilder):
 
     def request_info(self) -> InlineKeyboardMarkup:
-        """ Build a keyboard for RequestInfoMessage """
+        """ Build a keyboard for CardRequestInfoMessage """
         buttons = [
             (
                 InlineKeyboardButton('Name', callback_data=cardparam_cd.new(param='name', action='add')),
@@ -126,7 +128,7 @@ class CardKeyboardBuilder(KeyboardBuilder):
 
     def wait_param(self, param: str) -> InlineKeyboardMarkup:
         """
-        Return a keyboard for receiving parameters
+        Return a keyboard for receiving card parameters
 
         :raise ValueError: if param is unsupported
         """
@@ -141,21 +143,21 @@ class CardKeyboardBuilder(KeyboardBuilder):
             case 'name' | 'cost' | 'attack' | 'health' | 'durability' | 'armor':
                 buttons = []
             case 'ctype':
-                type_buttons = [InlineKeyboardButton(t.en, callback_data=cardparam_cd.new(param=t.sign, action='add'))
-                                for t in hs_data.types]
-                buttons = self.group_buttons(type_buttons)
+                type_btns = [InlineKeyboardButton(t.en, callback_data=cardparam_cd.new(param=t.sign, action='submit'))
+                             for t in hs_data.types]
+                buttons = self.group_buttons(type_btns)
             case 'classes':
-                class_buttons = [InlineKeyboardButton(c.en, callback_data=cardparam_cd.new(param=c.en, action='add'))
-                                 for c in hs_data.classes]
-                buttons = self.group_buttons(class_buttons)
+                class_btns = [InlineKeyboardButton(c.en, callback_data=cardparam_cd.new(param=c.en, action='submit'))
+                              for c in hs_data.classes]
+                buttons = self.group_buttons(class_btns)
             case 'cset':
-                set_buttons = [InlineKeyboardButton(s.en, callback_data=cardparam_cd.new(param=s.en, action='add'))
-                               for s in hs_data.sets]
-                buttons = self.group_buttons(set_buttons)
+                set_btns = [InlineKeyboardButton(s.en, callback_data=cardparam_cd.new(param=s.en, action='submit'))
+                            for s in hs_data.sets]
+                buttons = self.group_buttons(set_btns)
             case 'rarity':
-                rarity_buttons = [InlineKeyboardButton(r.en, callback_data=cardparam_cd.new(param=r.sign, action='add'))
-                                  for r in hs_data.rarities]
-                buttons = self.group_buttons(rarity_buttons)
+                rarity_btns = [InlineKeyboardButton(r.en, callback_data=cardparam_cd.new(param=r.sign, action='submit'))
+                               for r in hs_data.rarities]
+                buttons = self.group_buttons(rarity_btns)
             case _:
                 raise ValueError(f'Unknown card parameter: {param}')
 
@@ -216,7 +218,113 @@ class CardKeyboardBuilder(KeyboardBuilder):
 
 
 class DeckKeyboardBuilder(KeyboardBuilder):
-    pass
+
+    def request_info(self) -> InlineKeyboardMarkup:
+        """ Build a keyboard for DeckRequestInfoMessage """
+        buttons = [
+            (
+                InlineKeyboardButton('Format', callback_data=deckparam_cd.new(param='dformat', action='add')),
+                InlineKeyboardButton('Class', callback_data=deckparam_cd.new(param='dclass', action='add')),
+            ),
+            (
+                InlineKeyboardButton(
+                    'Created after',
+                    callback_data=deckparam_cd.new(param='deck_created_after', action='add'),
+                ),
+                InlineKeyboardButton('Cards', callback_data=deckparam_cd.new(param='deck_cards', action='add')),
+            ),
+            InlineKeyboardButton('Language', callback_data=deckparam_cd.new(param='language', action='add')),
+            (
+                InlineKeyboardButton('REQUEST', callback_data=command_cd.new(scope='deck_request', action='request')),
+                InlineKeyboardButton('CLEAR', callback_data=command_cd.new(scope='deck_request', action='clear')),
+                InlineKeyboardButton('CLOSE', callback_data=command_cd.new(scope='deck_request', action='close')),
+            )
+        ]
+
+        self.keyboard = InlineKeyboardMarkup()
+        self.fill(buttons)
+
+        return self.keyboard
+
+    def wait_param(self, param: str) -> InlineKeyboardMarkup:
+        """
+        Return a keyboard for receiving deck parameters
+
+        :raise ValueError: if param is unsupported
+        """
+        lower_row = [InlineKeyboardButton('CANCEL', callback_data=deckparam_cd.new(param=param, action='cancel'))]
+
+        if self.data.get(param):
+            lower_row.append(
+                InlineKeyboardButton('CLEAR', callback_data=deckparam_cd.new(param=param, action='clear'))
+            )
+
+        match param:
+            case 'deck_created_after':
+                buttons = []
+            case 'dformat':
+                fmt_btns = [InlineKeyboardButton(f.en, callback_data=deckparam_cd.new(param=f.en, action='submit'))
+                            for f in hs_data.formats]
+                buttons = self.group_buttons(fmt_btns)
+            case 'dclass':
+                class_btns = [InlineKeyboardButton(c.en, callback_data=deckparam_cd.new(param=c.en, action='submit'))
+                              for c in hs_data.classes if c.en.lower() != 'neutral']
+                buttons = self.group_buttons(class_btns)
+            case _:
+                raise ValueError(f'Unknown deck parameter: {param}')
+        buttons.append(tuple(lower_row))
+
+        self.keyboard = InlineKeyboardMarkup()
+        self.fill(buttons)
+        return self.keyboard
+
+    def result_list(self):
+        """ Return a keyboard to control DeckList message """
+        page = self.data['deck_list']['page']
+        all_decks = self.data['deck_list']['decks']
+        total_pages = len(all_decks)
+        page_decks = all_decks[page - 1] if all_decks else []
+
+        deck_buttons = [
+            InlineKeyboardButton(f'{i}. id{deck["id"]} {deck["deck_format"]} {deck["deck_class"]}',
+                                 callback_data=decklist_cd.new(id=deck['id'], action='get'))
+            for i, deck in enumerate(page_decks, start=1)
+        ]
+        deck_buttons = self.group_buttons(deck_buttons, cols=3)
+
+        page_buttons = []
+        if total_pages > 1:
+            page_buttons = [
+                InlineKeyboardButton('◄', callback_data=command_cd.new(scope='deck_pages', action='left')),
+                InlineKeyboardButton(
+                    f'| Page {page} of {total_pages} |',
+                    callback_data=command_cd.new(scope='deck_pages', action='pages'),
+                ),
+                InlineKeyboardButton('►', callback_data=command_cd.new(scope='deck_pages', action='right')),
+            ]
+
+        control_buttons = [
+            InlineKeyboardButton('CLOSE', callback_data=command_cd.new(scope='deck_pages', action='close')),
+        ]
+
+        deck_buttons.append(tuple(page_buttons))
+        deck_buttons.append(tuple(control_buttons))
+
+        self.keyboard = InlineKeyboardMarkup()
+        self.fill(deck_buttons)
+        return self.keyboard
+
+    def result_detail(self):
+        """ Return a keyboard to control DeckDetail message """
+        buttons = [
+            (
+                InlineKeyboardButton('BACK', callback_data=command_cd.new(scope='deck_detail', action='back')),
+                InlineKeyboardButton('CLOSE', callback_data=command_cd.new(scope='deck_pages', action='close')),
+            ),
+        ]
+        self.keyboard = InlineKeyboardMarkup()
+        self.fill(buttons)
+        return self.keyboard
 
 
 class Keyboard:

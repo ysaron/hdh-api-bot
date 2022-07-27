@@ -1,6 +1,6 @@
 from aiohttp import ClientSession
 
-from app.config import hs_data, BASE_URL
+from app.config import hs_data, BASE_API_URL
 from app.exceptions import EmptyRequestError
 
 
@@ -8,7 +8,10 @@ class Request:
     """ API request """
 
     def __init__(self, endpoint: str):
-        self.base_url = BASE_URL
+        """
+        :param endpoint: without first slash, f.e. `decode_deck/`
+        """
+        self.base_url = BASE_API_URL
         self.endpoint = endpoint
 
     @property
@@ -38,7 +41,7 @@ class Request:
 
 
 class RequestCards(Request):
-    """ **GET card_list** request """
+    """ **GET card list** request """
 
     def __init__(self, data: dict):
         self.data = data
@@ -67,7 +70,7 @@ class RequestCards(Request):
 
 
 class RequestSingleCard(Request):
-    """ `GET single_card` request """
+    """ **GET single card** request """
 
     def __init__(self, dbf_id: int):
         super().__init__(endpoint=f'cards/{dbf_id}/')
@@ -77,10 +80,48 @@ class RequestSingleCard(Request):
 
 
 class RequestDecodeDeck(Request):
-    """ `POST deck code` request """
+    """ **POST deck code** request """
 
     def __init__(self):
         super().__init__(endpoint='decode_deck/')
 
     async def get(self):
+        raise NotImplementedError
+
+
+class RequestDecks(Request):
+    """ **GET deck list** request """
+
+    def __init__(self, data: dict):
+        self.data = data
+        super().__init__(endpoint='decks/')
+
+    async def post(self, data):
+        raise NotImplementedError
+
+    @property
+    def params(self) -> dict:
+        clean_data = {}
+        for key, value in self.data.items():
+            if key not in hs_data.deck_params or value is None:
+                continue
+            if key == 'deck_created_after':
+                clean_data['date_after'] = value.replace('.', '/')
+                continue
+            if key == 'deck_cards':
+                clean_data['cards'] = ','.join(value)
+                continue
+
+            clean_data[key] = value
+
+        return clean_data
+
+
+class RequestSingleDeck(Request):
+    """ **GET single card** request """
+
+    def __init__(self, deck_id: int):
+        super().__init__(endpoint=f'decks/{deck_id}/')
+
+    async def post(self, data):
         raise NotImplementedError

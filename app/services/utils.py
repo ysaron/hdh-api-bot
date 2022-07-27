@@ -6,6 +6,7 @@ from aiohttp import ClientResponseError
 from contextlib import suppress
 import logging
 import re
+from datetime import datetime
 
 from app.exceptions import DeckstringError
 from app.config import config, MAX_CARD_NAME_LENGTH
@@ -19,6 +20,16 @@ logger = logging.getLogger('app')
 def check_card_name(text: str) -> bool:
     """ Check whether ``text`` can be placed in the request as a ``name`` parameter """
     return len(text) <= MAX_CARD_NAME_LENGTH
+
+
+def check_date(text: str) -> bool:
+    """ Check whether ``text`` can be interpreted as a date """
+    try:
+        datetime.strptime(text, '%d.%m.%Y')
+    except ValueError:
+        return False
+    else:
+        return True
 
 
 def is_positive_integer(string: str) -> bool:
@@ -108,10 +119,11 @@ async def clear_all(message: types.Message, state: FSMContext):
 
 async def clear_prompt(message: types.Message, data: dict, state: FSMContext):
     """ Delete message for request parameter clarification, then forget it """
-    if data.get('card_prompt_msg_id'):
-        with suppress(MessageToDeleteNotFound):
-            await message.bot.delete_message(message.chat.id, data['card_prompt_msg_id'])
-        await state.update_data(card_prompt_msg_id=None)
+    for key in ['card_prompt_msg_id', 'deck_prompt_msg_id']:
+        if data.get(key):
+            with suppress(MessageToDeleteNotFound):
+                await message.bot.delete_message(message.chat.id, data[key])
+            await state.update_data({key: None})
 
 
 async def deck_decode(message: types.Message, state: FSMContext, deckstring: str):
@@ -135,7 +147,7 @@ async def deck_decode(message: types.Message, state: FSMContext, deckstring: str
         await message.reply(CommonMessage.DECODE_ERROR)
         return
 
-    await state.update_data(deck=deck)
+    await state.update_data(deck_detail=deck)
     data = await state.get_data()
     response = AnswerBuilder(data).decks.deck_detail()
     await message.reply(text=response.text)
