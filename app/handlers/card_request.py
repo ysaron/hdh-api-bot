@@ -125,6 +125,8 @@ async def card_search_type_chosen(call: types.CallbackQuery, callback_data: dict
             await state.update_data(armor=None, durability=None, attack=None, health=None)
         case 'H':
             await state.update_data(attack=None, health=None, durability=None)
+        case 'L':
+            await state.update_data(attack=None, armor=None, durability=None)
 
     await clear_prompt(call.message, data, state)
     await BuildCardRequest.base.set()

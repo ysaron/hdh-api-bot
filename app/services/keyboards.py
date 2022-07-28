@@ -110,6 +110,10 @@ class CardKeyboardBuilder(KeyboardBuilder):
                 buttons.append(
                     InlineKeyboardButton('Armor', callback_data=cardparam_cd.new(param='armor', action='add')),
                 )
+            case 'L':
+                buttons.append(
+                    InlineKeyboardButton('Health', callback_data=cardparam_cd.new(param='health', action='add')),
+                )
 
         buttons.append((
             InlineKeyboardButton('Language', callback_data=cardparam_cd.new(param='language', action='add')),

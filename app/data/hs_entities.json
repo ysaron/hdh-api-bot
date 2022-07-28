@@ -69,6 +69,12 @@
       "ruRU": "Оружие",
       "sign": "W",
       "emoji": "⚔️"
+    },
+    "Location": {
+      "enUS": "Location",
+      "ruRU": "Область",
+      "sign": "L",
+      "emoji": "\uD83D\uDD32"
     }
   },
   "rarities": {

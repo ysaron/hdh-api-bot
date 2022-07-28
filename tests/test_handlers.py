@@ -202,7 +202,7 @@ class TestCardHandlers:
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
         'type_sign',
-        ['M', 'W', 'S', 'H']
+        ['M', 'W', 'S', 'H', 'L']
     )
     async def test_card_search_type_chosen(self, card_request_full_data, type_sign):
         call_mock = AsyncMock()

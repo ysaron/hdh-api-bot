@@ -23,11 +23,13 @@ class TestHsData:
         assert hs_data.gettype(sign='S').en == 'Spell'
         assert hs_data.gettype(sign='W').en == 'Weapon'
         assert hs_data.gettype(sign='H').en == 'Hero'
+        assert hs_data.gettype(sign='L').en == 'Location'
 
         assert hs_data.gettype(name='Minion').sign == 'M'
         assert hs_data.gettype(name='Spell').sign == 'S'
         assert hs_data.gettype(name='Weapon').sign == 'W'
         assert hs_data.gettype(name='Hero').sign == 'H'
+        assert hs_data.gettype(name='Location').sign == 'L'
 
     def test_hs_data_getrarity(self):
         with pytest.raises(StopIteration):

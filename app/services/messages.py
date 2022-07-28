@@ -206,6 +206,9 @@ class CardDetailInfo(TextBuilder):
                 return f'{cost} mana {armor} armor'
             case 'S':
                 return f'{cost} mana'
+            case 'L':
+                health = self.__card.get('health', '?')
+                return f'{cost} mana {health} health'
             case _:
                 return f'{cost} mana ?/?'
 
