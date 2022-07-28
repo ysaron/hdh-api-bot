@@ -1,0 +1,229 @@
+{
+  "dformat": "Wild",
+  "dclass": "Shaman",
+  "deck_created_after": "01.01.2020",
+  "deck_list": {
+    "decks": [
+      [
+        {
+          "id": 378,
+          "deck_format": "Wild",
+          "deck_class": "Shaman",
+          "string": "AAEBAaoIDvoO38QCq+cC8+cC7/cCnJsDw7YDkuQDqO4Dpu8DhvoDuZEE5bAEltQECIvOArWYA/DUA+PuA9OABNWyBJzHBMXOBAA=",
+          "created": "14.07.2022"
+        },
+        {
+          "id": 353,
+          "deck_format": "Wild",
+          "deck_class": "Shaman",
+          "string": "AAEBAaoICMLOApaKA9+pA4/OA8ORBOm2BL/OBJfvBBDOD9IT9r0C38QC8+cCn/0CrZEDk7kD87sD4+4DhfoD8IUE3JIE/Z8EvLYExs4EAA==",
+          "created": "07.07.2022"
+        },
+        {
+          "id": 337,
+          "deck_format": "Wild",
+          "deck_class": "Shaman",
+          "string": "AAEBAdrGBBT6Dva9At/EAqvnAvPnAu/3ApWUA5ybA8O2A4/OA/bWA5LkA6juA6bvA4b6A7mRBOWwBMeyBJbUBJfvBAr4B4vOArWYA/DUA4vVA+PuA9OABNWyBJzHBMXOBAA=",
+          "created": "07.07.2022"
+        },
+        {
+          "id": 295,
+          "deck_format": "Wild",
+          "deck_class": "Shaman",
+          "string": "AAEBAejwBB76Dva9At/EApvLAovOAqvnAvPnAsPqAu/3ApWUA7WYA/yjA8O2A4/OA/DUA5LkA6juA+PuA6bvA4b6A9OABLmRBMORBJWSBOWwBMeyBI21BJvJBJjUBJrUBAAA",
+          "created": "23.04.2022"
+        },
+        {
+          "id": 262,
+          "deck_format": "Wild",
+          "deck_class": "Shaman",
+          "string": "AAEBAaoIBoUXwYkDhvoDw5EE57UE27kEDLIGuQagtgLTgAS5kQSVkgTckgT5nwS8tgSWtwSNugSZ2wQA",
+          "created": "11.04.2022"
+        },
+        {
+          "id": 251,
+          "deck_format": "Wild",
+          "deck_class": "Shaman",
+          "string": "AAEBAaoICOe1BJa3BNu5BMGJA7mRBMORBIUXlrcEC/mfBLy2BJnbBNySBOC1BKC2ApWSBNu4A9OABKiBBLkGAA==",
+          "created": "10.04.2022"
+        },
+        {
+          "id": 239,
+          "deck_format": "Wild",
+          "deck_class": "Shaman",
+          "string": "AAEBAfWfAwKTuQO7igQO4AbWD9IT9vACnv0CjIUD9ooD27gD4cwD8NQD+uwDhfoD3JIE+Z8EAA==",
+          "created": "03.04.2022"
+        },
+        {
+          "id": 234,
+          "deck_format": "Wild",
+          "deck_class": "Shaman",
+          "string": "AAEBAaoIDvoOi84CoM4Cq+cCw+oC7/cCwI8DtZgDw7YDj84DqO4Dpu8DhvoDmKAECPa9At/EApvLAovVA5LkA9OABLmRBJWSBAA=",
+          "created": "15.03.2022"
+        },
+        {
+          "id": 214,
+          "deck_format": "Wild",
+          "deck_class": "Shaman",
+          "string": "AAEBAaoIHvoOwxb2vQLfxAKbywKLzgKr5wLz5wLD6gLv9wLLhQO1mAO9mQP8owPDtgOTwgOPzgOo7gPj7gOm7wOG+gPTgATAigS5kQTDkQSVkgTckgSvnwT9nwSEsAQAAA==",
+          "created": "20.02.2022"
+        }
+      ],
+      [
+        {
+          "id": 199,
+          "deck_format": "Wild",
+          "deck_class": "Shaman",
+          "string": "AAEBAZu1Awr6DovOAqvnAu/3AsuFA7WYA+O0A9PAA6juA+PuAwr2vQLfxAKbywK5rQPQrwOS5APTgAS5kQSVkgTckgQA",
+          "created": "13.02.2022"
+        },
+        {
+          "id": 178,
+          "deck_format": "Wild",
+          "deck_class": "Shaman",
+          "string": "AAEBAZu1AwyCtAKXxwKLzgKr0ALz5wK1mAP8owOPzgP67AOo7gPj7gOLnwQJlQHSE43OAp79AoyFA+HMA/DUA4X6A/CFBAA=",
+          "created": "05.02.2022"
+        },
+        {
+          "id": 168,
+          "deck_format": "Wild",
+          "deck_class": "Shaman",
+          "string": "AAEBAaoICKirApaKA62RA9+pA5O5A4/OA9uUBIufBAvOD9ITtBT2vQKf/QLzuwPw1AOU5APwhQTckgT9nwQA",
+          "created": "01.02.2022"
+        },
+        {
+          "id": 163,
+          "deck_format": "Wild",
+          "deck_class": "Shaman",
+          "string": "AAEBAaoIBPPnAp79AoqFA8L2Aw3xEdITgrQC57sCjc4CnP8CjIUD4cwD8NQD+uwD5PYDhfoD8IUEAA==",
+          "created": "01.02.2022"
+        },
+        {
+          "id": 154,
+          "deck_format": "Wild",
+          "deck_class": "Shaman",
+          "string": "AAEBAaoICKirApaKA9+pA5O5A4/OA9uUBIufBP2fBAvOD9ITtBT2vQKf/QKtkQPzuwPw1AOU5APwhQTckgQA",
+          "created": "29.01.2022"
+        },
+        {
+          "id": 151,
+          "deck_format": "Wild",
+          "deck_class": "Shaman",
+          "string": "AAEBAYHaAwTz5wKe/QKKhQPC9gMN8RHSE4K0Aue7Ao3OApz/AoyFA+HMA/DUA/rsA+T2A4X6A/CFBAA=",
+          "created": "27.01.2022"
+        },
+        {
+          "id": 145,
+          "deck_format": "Wild",
+          "deck_class": "Shaman",
+          "string": "AAEBAaoICO/3AqvnAvoOy4UDi84CqO4DhvoDtZgDC7mRBMO2A9OABOPuA5WSBPa9AovVA9/EApLkA9ySBPDUAwA=",
+          "created": "26.01.2022"
+        },
+        {
+          "id": 136,
+          "deck_format": "Wild",
+          "deck_class": "Shaman",
+          "string": "AAEBAZu1Awr6DovOAqvnAu/3AsuFA7WYA+O0A9PAA6juA5iOBArfxAKbywK5rQPQrwOL1QOS5APTgAS5kQSVkgTckgQA",
+          "created": "21.01.2022"
+        },
+        {
+          "id": 131,
+          "deck_format": "Wild",
+          "deck_class": "Shaman",
+          "string": "AAEBAaoIHtCvA7WYA9ySBIb6A/a9AuHMA9/EAqjuA4vOAvyjA9OABPPnAuPuA7mYA/CgBMuFA8PqAsH2A5vLArmtA/oO/q4Dq+cCwxa5kQSTwgPTwAOm7wPDkQTv9wIAAA==",
+          "created": "16.01.2022"
+        }
+      ],
+      [
+        {
+          "id": 129,
+          "deck_format": "Wild",
+          "deck_class": "Shaman",
+          "string": "AAEBAaoIHvoOwxb2vQLfxAKXxwKbywKLzgKr5wLz5wLD6gLv9wKtkQOVlAO1mAO9mQP8owPDtgOTwgOPzgOL1QOS5AOo7gPj7gOm7wPB9gOG+gPTgAS5kQTDkQSVkgQAAA==",
+          "created": "16.01.2022"
+        },
+        {
+          "id": 127,
+          "deck_format": "Wild",
+          "deck_class": "Shaman",
+          "string": "AAEBAaoIDPoOhBeLzgKr5wLD6gLv9wK1mAPDtgOPzgOo7gOG+gP9nwQJ9r0C38QCm8sC8+cCp7UDkuQD4+4D04AEuZEEAA==",
+          "created": "16.01.2022"
+        },
+        {
+          "id": 119,
+          "deck_format": "Wild",
+          "deck_class": "Shaman",
+          "string": "AAEBAaoIBPPCAqreA8ORBICgBA32vQLfxAKw8AKKlAOr3gPg7AOt7gOv7gPj7gPA9gPB9gOVkgTjoAQA",
+          "created": "11.01.2022"
+        },
+        {
+          "id": 68,
+          "deck_format": "Wild",
+          "deck_class": "Shaman",
+          "string": "AAEBAaoIAqirAt+pAw7OD9ITtBT2vQLz5wKf/QL2igPzuwPw1AOU5APwhQTckgSLnwT9nwQA",
+          "created": "07.01.2022"
+        },
+        {
+          "id": 64,
+          "deck_format": "Wild",
+          "deck_class": "Shaman",
+          "string": "AAEBAfWfAx6KAd4F+g71D/oPwxb2vQLHwQLkwgLfxAKbywKgzgLz5wLD6gLv8QLv9wKtkQO9mQP8owO7pQPhqAOTuQObzQPB9gPTgAS5kQSVkgTckgT9nwT/nwQAAA==",
+          "created": "07.01.2022"
+        },
+        {
+          "id": 62,
+          "deck_format": "Wild",
+          "deck_class": "Shaman",
+          "string": "AAEBAfWfAx6KAd4F+g71D/oPwxb2vQLHwQLkwgLfxAKbywKgzgLz5wLD6gLv8QLv9wKtkQO9mQP8owO7pQPhqAOTuQObzQPB9gPTgAS5kQSVkgTckgT9nwT/nwQAAA==",
+          "created": "07.01.2022"
+        },
+        {
+          "id": 51,
+          "deck_format": "Wild",
+          "deck_class": "Shaman",
+          "string": "AAEBAaoIHvoOwxb2vQLfxAKbywKLzgKr5wLz5wLD6gLv9wK1mAO5mAP8owPbuAOTuQOTwgOL1QOS5AOo7gPj7gOm7wOG+gPTgASoigTAigS5kQTckgT9nwSXoATwoAQAAA==",
+          "created": "07.01.2022"
+        },
+        {
+          "id": 34,
+          "deck_format": "Wild",
+          "deck_class": "Shaman",
+          "string": "AAEBAaoIApO5A7uKBA7gBtYP0hP28AKe/QKMhQPbuAOmywPhzAPw1AP67AOF+gPckgT5nwQA",
+          "created": "07.01.2022"
+        },
+        {
+          "id": 28,
+          "deck_format": "Wild",
+          "deck_class": "Shaman",
+          "string": "AAEBAaoIHvoOwxb2vQLkwgLfxAKLzgLD6gLv9wLLhQO1mAP8owO5rQP+rgOqrwPQrwPjtAPTwAOTwgOS5AOo7gPj7gOU8AOG+gPTgAS5kQTDkQSVkgTckgSLnwT9nwQAAA==",
+          "created": "07.01.2022"
+        }
+      ],
+      [
+        {
+          "id": 27,
+          "deck_format": "Wild",
+          "deck_class": "Shaman",
+          "string": "AAEBAaoIDPoOhBfkwgKLzgKr5wLv9wK1mAOntQPw1AOo7gOG+gOVkgQJ9r0C38QCm8sCkuQD4+4D04AEmI4EuZEE3JIEAA==",
+          "created": "07.01.2022"
+        },
+        {
+          "id": 14,
+          "deck_format": "Wild",
+          "deck_class": "Shaman",
+          "string": "AAEBAZu1Ax76DsMW9r0C38QCm8sCi84C8+cCw+oC7/cCtZgDvZkD/KMDua0D/q4D0K8D08ADk8ID4cwDnM4DkuQDqO4D4+4DwfYDhvoD04AEqIoEmI4EuZEElZIE3JIEAAA=",
+          "created": "07.01.2022"
+        },
+        {
+          "id": 5,
+          "deck_format": "Wild",
+          "deck_class": "Shaman",
+          "string": "AAEBAZu1Ax7eBf4N+g7DFuCsAqa8Ava9AuTCAt/EAovOAsPqAqfuAqbwAu/3Aq2RA7WYA6GhA/yjA5CnA/2wA9uyA8O2A/DUA6juA+PuA6bvA5TwA8H2A9OABKiKBAAA",
+          "created": "07.01.2022"
+        }
+      ]
+    ],
+    "page": 1,
+    "total": 30
+  }
+}

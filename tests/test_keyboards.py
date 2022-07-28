@@ -100,3 +100,61 @@ class TestCardKeyboardBuilder:
         back, close = kb[-1]
         assert back.text == 'BACK', last_row_msg
         assert close.text == 'CLOSE', last_row_msg
+
+
+class TestDeckKeyboardBuilder:
+
+    def test_deck_keyboard_builder_request_info(self, deck_request_keyboard_builder_obj, inline_keyboard):
+        deck_request_keyboard_builder_obj.keyboard = inline_keyboard
+        kb = deck_request_keyboard_builder_obj.request_info().inline_keyboard
+        assert isinstance(kb, list)
+        assert all(isinstance(row, list) for row in kb)
+        assert len(kb[-1]) == 3, 'last row must include 3 buttons'
+        request_btn, clear_btn, close_btn = kb[-1]
+
+        invalid_last_row = 'last row must consist of 3 buttons: REQUEST, CLEAR, CLOSE'
+        assert request_btn.text == 'REQUEST', invalid_last_row
+        assert clear_btn.text == 'CLEAR', invalid_last_row
+        assert close_btn.text == 'CLOSE', invalid_last_row
+
+    def test_deck_keyboard_builder_wait_param(self, deck_request_keyboard_builder_obj, inline_keyboard):
+        deck_request_keyboard_builder_obj.keyboard = inline_keyboard
+
+        # for parameter saved in request context
+        kb = deck_request_keyboard_builder_obj.wait_param('dformat').inline_keyboard
+        assert isinstance(kb, list)
+        assert all(isinstance(row, list) for row in kb)
+        assert len(kb[-1]) == 2, 'last row of the keyboard for saved parameter must include 2 buttons'
+        cancel_btn, clear_btn = kb[-1]
+        invalid_last_row = 'last row must consist of 2 buttons: CANCEL, CLEAR'
+        assert cancel_btn.text == 'CANCEL', invalid_last_row
+        assert clear_btn.text == 'CLEAR', invalid_last_row
+
+    def test_deck_keyboard_builder_result_list(self, deck_list_keyboard_builder_obj, inline_keyboard):
+        deck_list_keyboard_builder_obj.keyboard = inline_keyboard
+        kb = deck_list_keyboard_builder_obj.result_list().inline_keyboard
+        assert isinstance(kb, list)
+        assert all(isinstance(row, list) for row in kb)
+
+        last_row_msg = 'last row must consist of 1 button: CLOSE'
+        assert len(kb[-1]) == 1, last_row_msg
+        assert kb[-1][0].text == 'CLOSE', last_row_msg
+
+        penultimate_row_msg = 'penultimate row must consist of 3 buttons: left, page info, right'
+        assert len(kb[-2]) == 3, penultimate_row_msg
+        left, info, right = kb[-2]
+        assert left.callback_data == 'cmd:deck_pages:left', penultimate_row_msg
+        assert info.callback_data == 'cmd:deck_pages:pages', penultimate_row_msg
+        assert right.callback_data == 'cmd:deck_pages:right', penultimate_row_msg
+
+    def test_deck_keyboard_builder_result_detail(self, deck_detail_keyboard_builder_obj, inline_keyboard):
+        deck_detail_keyboard_builder_obj.keyboard = inline_keyboard
+        kb = deck_detail_keyboard_builder_obj.result_detail().inline_keyboard
+
+        assert isinstance(kb, list)
+        assert all(isinstance(row, list) for row in kb)
+        last_row_msg = 'last row must consist of 2 buttons: BACK, CLOSE'
+        assert len(kb[-1]) == 2, last_row_msg
+        back, close = kb[-1]
+        assert back.text == 'BACK', last_row_msg
+        assert close.text == 'CLOSE', last_row_msg

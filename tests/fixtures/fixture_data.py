@@ -3,8 +3,16 @@ import ujson
 
 from aiogram.types import ReplyKeyboardMarkup, InlineKeyboardMarkup, ReplyKeyboardRemove
 
-from app.services.messages import TextInfo, CardRequestInfo, CardListInfo, CardDetailInfo, DeckDetailInfo
-from app.services.keyboards import Keyboard, CommonKeyboardBuilder, CardKeyboardBuilder
+from app.services.messages import (
+    TextInfo,
+    CardRequestInfo,
+    CardListInfo,
+    CardDetailInfo,
+    DeckDetailInfo,
+    DeckRequestInfo,
+    DeckListInfo,
+)
+from app.services.keyboards import Keyboard, CommonKeyboardBuilder, CardKeyboardBuilder, DeckKeyboardBuilder
 from app.config import BASE_DIR
 
 
@@ -43,7 +51,7 @@ def card_detail_data() -> dict:
 
 @pytest.fixture
 def card_request_full_data(card_request_data) -> dict:
-    """ Full context data for build-request handlers """
+    """ Full context data for card build-request handlers """
     return card_request_data | {'card_request_msg_id': 1111, 'card_prompt_msg_id': 1112}
 
 
@@ -72,6 +80,16 @@ def card_list_info_obj(card_list_data) -> CardListInfo:
 @pytest.fixture
 def card_detail_info_obj(card_detail_data) -> CardDetailInfo:
     return TextInfo(data=card_detail_data).card_detail
+
+
+@pytest.fixture
+def deck_request_info_obj(deck_request_data) -> DeckRequestInfo:
+    return TextInfo(data=deck_request_data).deck_request
+
+
+@pytest.fixture
+def deck_list_info_obj(deck_list_data) -> DeckListInfo:
+    return TextInfo(data=deck_list_data).deck_list
 
 
 @pytest.fixture
@@ -114,6 +132,21 @@ def card_list_keyboard_builder_obj(card_list_data) -> CardKeyboardBuilder:
 @pytest.fixture
 def card_detail_keyboard_builder_obj(card_detail_data) -> CardKeyboardBuilder:
     return Keyboard(data=card_detail_data).cards
+
+
+@pytest.fixture
+def deck_request_keyboard_builder_obj(deck_request_data) -> DeckKeyboardBuilder:
+    return Keyboard(data=deck_request_data).decks
+
+
+@pytest.fixture
+def deck_list_keyboard_builder_obj(deck_list_data) -> DeckKeyboardBuilder:
+    return Keyboard(data=deck_list_data).decks
+
+
+@pytest.fixture
+def deck_detail_keyboard_builder_obj(deck_detail_data) -> DeckKeyboardBuilder:
+    return Keyboard(data=deck_detail_data).decks
 
 
 @pytest.fixture
@@ -170,4 +203,33 @@ def deck_detail_data() -> dict:
 @pytest.fixture
 def deck_detail_full_data(deck_detail_data) -> dict:
     """ Full context data for build-request handlers """
-    return deck_detail_data | {'card_request_msg_id': 1111, 'card_prompt_msg_id': 1112, 'card_response_msg_id': 1113}
+    return deck_detail_data | {'deck_request_msg_id': 1111, 'deck_prompt_msg_id': 1112, 'deck_response_msg_id': 1113}
+
+
+@pytest.fixture
+def deck_request_data() -> dict:
+    """ Data used for build and perform request to decklist endpoint """
+    return {
+        'dformat': 'Wild',
+        'dclass': 'Warlock',
+        'deck_created_after': '01.01.2020',
+    }
+
+
+@pytest.fixture
+def deck_request_full_data(deck_request_data) -> dict:
+    """ Full context data for deck build-request handlers """
+    return deck_request_data | {'deck_request_msg_id': 1111, 'deck_prompt_msg_id': 1112}
+
+
+@pytest.fixture
+def deck_list_data() -> dict:
+    """ Data used for building decklist response """
+    with open(DATA_DIR / 'decklist_fixture.json', 'r', encoding='utf-8') as f:
+        return ujson.load(f)
+
+
+@pytest.fixture
+def deck_list_full_data(deck_list_data) -> dict:
+    """ Full context data for decklist response handlers """
+    return deck_list_data | {'deck_response_msg_id': 1113}

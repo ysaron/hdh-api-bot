@@ -75,3 +75,43 @@ class TestDeckAnswerBuilder:
         assert isinstance(answer, BotAnswer)
         assert isinstance(answer.text, str)
         assert answer.keyboard is None
+
+    def test_deck_answer_builder_request_info(self, deck_request_data):
+        answer = AnswerBuilder(deck_request_data).decks.request_info()
+        assert isinstance(answer, BotAnswer)
+        assert isinstance(answer.text, str)
+        assert isinstance(answer.keyboard, InlineKeyboardMarkup)
+
+    def test_deck_answer_builder_wait_param(self, deck_request_data):
+        answer = AnswerBuilder(deck_request_data).decks.wait_param('dformat')
+        assert isinstance(answer, BotAnswer)
+        assert isinstance(answer.text, str)
+        assert isinstance(answer.keyboard, InlineKeyboardMarkup)
+
+        answer = AnswerBuilder(deck_request_data).decks.wait_param('dclass')
+        assert isinstance(answer, BotAnswer)
+        assert isinstance(answer.text, str)
+        assert isinstance(answer.keyboard, InlineKeyboardMarkup)
+
+    def test_deck_answer_builder_invalid_param(self, deck_request_data):
+        answer = AnswerBuilder(deck_request_data).decks.invalid_param('dformat')
+        assert isinstance(answer, BotAnswer)
+        assert isinstance(answer.text, str)
+        assert isinstance(answer.keyboard, InlineKeyboardMarkup)
+
+        answer = AnswerBuilder(deck_request_data).decks.invalid_param('dclass')
+        assert isinstance(answer, BotAnswer)
+        assert isinstance(answer.text, str)
+        assert isinstance(answer.keyboard, InlineKeyboardMarkup)
+
+    def test_deck_answer_builder_result_list(self, deck_list_data):
+        answer = AnswerBuilder(deck_list_data).decks.result_list()
+        assert isinstance(answer, BotAnswer)
+        assert isinstance(answer.text, str)
+        assert isinstance(answer.keyboard, InlineKeyboardMarkup)
+
+    def test_deck_answer_builder_result_detail(self, deck_detail_data):
+        answer = AnswerBuilder(deck_detail_data).decks.result_detail()
+        assert isinstance(answer, BotAnswer)
+        assert isinstance(answer.text, str)
+        assert isinstance(answer.keyboard, InlineKeyboardMarkup)

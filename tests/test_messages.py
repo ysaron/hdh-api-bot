@@ -60,3 +60,15 @@ class TestDeckDetailInfo:
     def test_deck_detail_info_format(self, deck_detail_info_obj):
         deck_detail_info_obj.format()
         assert deck_detail_info_obj.rows
+
+
+class TestDeckListInfo:
+
+    def test_deck_list_info_init(self, deck_list_info_obj):
+        assert deck_list_info_obj.rows == []
+        assert deck_list_info_obj.page == 1
+        assert deck_list_info_obj.total == 30
+
+    def test_deck_list_info_format(self, deck_list_info_obj):
+        deck_list_info_obj.format()
+        assert all(isinstance(r, str) for r in deck_list_info_obj.rows)
