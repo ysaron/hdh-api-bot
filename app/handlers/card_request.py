@@ -257,7 +257,7 @@ async def card_search_digit_param_entered(message: types.Message, state: FSMCont
 
 async def card_search_language_input(call: types.CallbackQuery):
     """ Prepare to receive a language """
-    await call.answer('Coming soon')
+    await call.answer('Currently, only English is available')
 
 
 async def card_search_collectible_input(call: types.CallbackQuery):

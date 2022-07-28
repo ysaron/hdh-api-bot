@@ -142,7 +142,7 @@ async def deck_search_cards_input(call: types.CallbackQuery):
 
 async def deck_search_language_input(call: types.CallbackQuery):
     """ Prepare to receive a language """
-    await call.answer('Coming soon')
+    await call.answer('Currently, only English is available')
 
 
 async def deck_search_close(call: types.CallbackQuery, state: FSMContext):
