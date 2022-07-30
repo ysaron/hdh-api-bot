@@ -1,7 +1,11 @@
-from aiohttp import ClientSession
+from aiohttp import ClientSession, ClientResponseError
+
+import logging
 
 from app.config import hs_data, BASE_API_URL
 from app.exceptions import EmptyRequestError
+
+logger = logging.getLogger('app')
 
 
 class Request:
@@ -106,7 +110,7 @@ class RequestDecks(Request):
             if key not in hs_data.deck_params or value is None:
                 continue
             if key == 'deck_created_after':
-                clean_data['date_after'] = value.replace('.', '/')
+                clean_data['date_after'] = self.format_date(value)
                 continue
             if key == 'deck_cards':
                 clean_data['cards'] = ','.join(value)
@@ -115,6 +119,22 @@ class RequestDecks(Request):
             clean_data[key] = value
 
         return clean_data
+
+    @staticmethod
+    def format_date(date: str) -> str:
+        """
+        Workaround for sending date in GET request
+
+        :param date: date in dd.mm.yyyy format
+        :return: date in mm/dd/yyyy format
+        :raise ClientResponseError: if couldn't format date and perform request
+        """
+        try:
+            date = date.split('.')
+            return '/'.join([date[1], date[0], date[2]])
+        except Exception as e:
+            logger.warning(f"Couldn't format date {date} for GET request: {e}")
+            raise ClientResponseError
 
 
 class RequestSingleDeck(Request):
