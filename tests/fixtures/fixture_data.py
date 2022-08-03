@@ -58,13 +58,13 @@ def card_request_full_data(card_request_data) -> dict:
 @pytest.fixture
 def card_list_full_data(card_list_data) -> dict:
     """ Full context data for cardlist handlers """
-    return card_list_data | {'card_response_msg_id': 1113}
+    return card_list_data | {'card_response_msg_id': 1113, 'on_close': 'cards_list'}
 
 
 @pytest.fixture
 def card_detail_full_data(card_detail_data) -> dict:
     """ Full context data for carddetail handlers """
-    return card_detail_data | {'card_response_msg_id': 1113}
+    return card_detail_data | {'card_response_msg_id': 1113, 'on_close': 'cards_list'}
 
 
 @pytest.fixture
@@ -125,13 +125,13 @@ def card_request_keyboard_builder_obj(card_request_data) -> CardKeyboardBuilder:
 
 
 @pytest.fixture
-def card_list_keyboard_builder_obj(card_list_data) -> CardKeyboardBuilder:
-    return Keyboard(data=card_list_data).cards
+def card_list_keyboard_builder_obj(card_list_full_data) -> CardKeyboardBuilder:
+    return Keyboard(data=card_list_full_data).cards
 
 
 @pytest.fixture
-def card_detail_keyboard_builder_obj(card_detail_data) -> CardKeyboardBuilder:
-    return Keyboard(data=card_detail_data).cards
+def card_detail_keyboard_builder_obj(card_detail_full_data) -> CardKeyboardBuilder:
+    return Keyboard(data=card_detail_full_data).cards
 
 
 @pytest.fixture
@@ -140,13 +140,13 @@ def deck_request_keyboard_builder_obj(deck_request_data) -> DeckKeyboardBuilder:
 
 
 @pytest.fixture
-def deck_list_keyboard_builder_obj(deck_list_data) -> DeckKeyboardBuilder:
-    return Keyboard(data=deck_list_data).decks
+def deck_list_keyboard_builder_obj(deck_list_full_data) -> DeckKeyboardBuilder:
+    return Keyboard(data=deck_list_full_data).decks
 
 
 @pytest.fixture
-def deck_detail_keyboard_builder_obj(deck_detail_data) -> DeckKeyboardBuilder:
-    return Keyboard(data=deck_detail_data).decks
+def deck_detail_keyboard_builder_obj(deck_detail_full_data) -> DeckKeyboardBuilder:
+    return Keyboard(data=deck_detail_full_data).decks
 
 
 @pytest.fixture
@@ -203,7 +203,12 @@ def deck_detail_data() -> dict:
 @pytest.fixture
 def deck_detail_full_data(deck_detail_data) -> dict:
     """ Full context data for build-request handlers """
-    return deck_detail_data | {'deck_request_msg_id': 1111, 'deck_prompt_msg_id': 1112, 'deck_response_msg_id': 1113}
+    return deck_detail_data | {
+        'deck_request_msg_id': 1111,
+        'deck_prompt_msg_id': 1112,
+        'deck_response_msg_id': 1113,
+        'on_close': 'decks_base',
+    }
 
 
 @pytest.fixture
@@ -232,4 +237,4 @@ def deck_list_data() -> dict:
 @pytest.fixture
 def deck_list_full_data(deck_list_data) -> dict:
     """ Full context data for decklist response handlers """
-    return deck_list_data | {'deck_response_msg_id': 1113}
+    return deck_list_data | {'deck_response_msg_id': 1113, 'on_close': 'decks_base'}

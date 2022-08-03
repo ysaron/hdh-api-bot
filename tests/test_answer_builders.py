@@ -104,14 +104,14 @@ class TestDeckAnswerBuilder:
         assert isinstance(answer.text, str)
         assert isinstance(answer.keyboard, InlineKeyboardMarkup)
 
-    def test_deck_answer_builder_result_list(self, deck_list_data):
-        answer = AnswerBuilder(deck_list_data).decks.result_list()
+    def test_deck_answer_builder_result_list(self, deck_list_full_data):
+        answer = AnswerBuilder(deck_list_full_data).decks.result_list()
         assert isinstance(answer, BotAnswer)
         assert isinstance(answer.text, str)
         assert isinstance(answer.keyboard, InlineKeyboardMarkup)
 
-    def test_deck_answer_builder_result_detail(self, deck_detail_data):
-        answer = AnswerBuilder(deck_detail_data).decks.result_detail()
+    def test_deck_answer_builder_result_detail(self, deck_detail_full_data):
+        answer = AnswerBuilder(deck_detail_full_data).decks.result_detail()
         assert isinstance(answer, BotAnswer)
         assert isinstance(answer.text, str)
         assert isinstance(answer.keyboard, InlineKeyboardMarkup)

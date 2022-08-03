@@ -85,9 +85,9 @@ class TestCardKeyboardBuilder:
         penultimate_row_msg = 'penultimate row must consist of 3 buttons: left, page info, right'
         assert len(kb[-2]) == 3, penultimate_row_msg
         left, info, right = kb[-2]
-        assert left.callback_data == 'cmd:card_pages:left', penultimate_row_msg
-        assert info.callback_data == 'cmd:card_pages:pages', penultimate_row_msg
-        assert right.callback_data == 'cmd:card_pages:right', penultimate_row_msg
+        assert left.callback_data == 'cmd:card_pages:left:', penultimate_row_msg
+        assert info.callback_data == 'cmd:card_pages:pages:', penultimate_row_msg
+        assert right.callback_data == 'cmd:card_pages:right:', penultimate_row_msg
 
     def test_card_keyboard_builder_result_detail(self, card_detail_keyboard_builder_obj, inline_keyboard):
         card_detail_keyboard_builder_obj.keyboard = inline_keyboard
@@ -143,9 +143,9 @@ class TestDeckKeyboardBuilder:
         penultimate_row_msg = 'penultimate row must consist of 3 buttons: left, page info, right'
         assert len(kb[-2]) == 3, penultimate_row_msg
         left, info, right = kb[-2]
-        assert left.callback_data == 'cmd:deck_pages:left', penultimate_row_msg
-        assert info.callback_data == 'cmd:deck_pages:pages', penultimate_row_msg
-        assert right.callback_data == 'cmd:deck_pages:right', penultimate_row_msg
+        assert left.callback_data == 'cmd:deck_pages:left:', penultimate_row_msg
+        assert info.callback_data == 'cmd:deck_pages:pages:', penultimate_row_msg
+        assert right.callback_data == 'cmd:deck_pages:right:', penultimate_row_msg
 
     def test_deck_keyboard_builder_result_detail(self, deck_detail_keyboard_builder_obj, inline_keyboard):
         deck_detail_keyboard_builder_obj.keyboard = inline_keyboard

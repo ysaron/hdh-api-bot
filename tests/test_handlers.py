@@ -880,6 +880,27 @@ class TestDeckHandlers:
             call_mock.answer.assert_called_once()
 
     @pytest.mark.asyncio
+    async def test_deck_search_from_card_detail(self, deck_request_full_data, deck_list_full_data):
+        call_mock = AsyncMock()
+        context_mock = AsyncMock()
+        context_mock.get_data.return_value = deck_request_full_data | deck_list_full_data
+        callback_data = {'id': 75583}
+
+        with asynctest.patch('app.handlers.deck_request.RequestDecks.get') as api_mock, \
+                patch('app.states.decks.DeckResponse.list.set') as state_mock, \
+                patch('app.services.answer_builders.DeckAnswerBuilder.result_list') as builder_mock:
+            api_mock.return_value = deck_list_full_data['deck_list']['decks']
+            await deck_search_from_card_detail(call=call_mock, callback_data=callback_data, state=context_mock)
+
+            api_mock.assert_called_with()
+            context_mock.update_data.assert_any_call(deck_list=ANY)
+            builder_mock.assert_called_with()
+            call_mock.message.reply.assert_called_once()
+            context_mock.update_data.assert_any_call(deck_response_msg_id=ANY)
+            state_mock.assert_called_with()
+            call_mock.answer.assert_called_once()
+
+    @pytest.mark.asyncio
     @pytest.mark.parametrize(
         'direction',
         ['left', 'right']
@@ -908,20 +929,25 @@ class TestDeckHandlers:
         call_mock.answer.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_deck_list_pages_close(self, deck_list_full_data):
+    async def test_deck_list_pages_close(self, deck_detail_full_data):
         call_mock = AsyncMock()
         context_mock = AsyncMock()
-        callback_data = {'action': 'close'}
+        callback_data = {'action': 'close', 'on_close': 'decks_base'}
+        context_mock.get_data.return_value = deck_detail_full_data
 
-        with patch('app.states.decks.BuildDeckRequest.base.set') as state_mock, \
+        with patch('app.states.decks.BuildDeckRequest.base.set'), \
                 patch('app.services.answer_builders.DeckAnswerBuilder.request_info') as builder_mock:
             await deck_list_pages(call=call_mock, callback_data=callback_data, state=context_mock)
 
             call_mock.message.delete.assert_called_with()
-            state_mock.assert_called_with()
             builder_mock.assert_called_with()
             call_mock.bot.edit_message_reply_markup.assert_called_once()
-            context_mock.update_data.assert_called_with(deck_response_msg_id=None, deck_list=None, deck_detail=None)
+            context_mock.update_data.assert_called_with(
+                deck_response_msg_id=None,
+                deck_list=None,
+                deck_detail=None,
+                on_close=None,
+            )
 
     @pytest.mark.asyncio
     async def test_deck_list_pages_unknown(self):
