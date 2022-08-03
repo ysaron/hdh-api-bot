@@ -55,22 +55,24 @@ async def deck_list_pages(call: types.CallbackQuery, callback_data: dict, state:
             await STATES[on_close].set()
 
             # Open keyboard again for the caused message
-            for key in ['deck_request_msg_id', 'card_response_msg_id']:
-                if data.get(key):
-                    match on_close:
-                        case 'decks_base':
-                            response = AnswerBuilder(data).decks.request_info()
-                        case 'cards_list':
-                            response = AnswerBuilder(data).cards.result_detail()
-                        case _:
-                            response = AnswerBuilder(data).decks.request_info()
+            if data.get('deck_request_msg_id'):
+                response = AnswerBuilder(data).decks.request_info()
 
-                    with suppress(MessageNotModified):
-                        await call.bot.edit_message_reply_markup(
-                            chat_id=call.message.chat.id,
-                            message_id=data[key],
-                            reply_markup=response.keyboard
-                        )
+                with suppress(MessageNotModified):
+                    await call.bot.edit_message_reply_markup(
+                        chat_id=call.message.chat.id,
+                        message_id=data['deck_request_msg_id'],
+                        reply_markup=response.keyboard
+                    )
+            if data.get('card_response_msg_id'):
+                response = AnswerBuilder(data).cards.result_detail()
+
+                with suppress(MessageNotModified):
+                    await call.bot.edit_message_reply_markup(
+                        chat_id=call.message.chat.id,
+                        message_id=data['card_response_msg_id'],
+                        reply_markup=response.keyboard
+                    )
 
             await state.update_data(deck_response_msg_id=None, deck_list=None, deck_detail=None, on_close=None)
         case _:
