@@ -11,7 +11,7 @@ from app.services.utils import flip_page
 from app.services.answer_builders import AnswerBuilder
 from app.services.api import RequestSingleCard
 from app.services.messages import CommonMessage
-from app.states.cards import BuildCardRequest, CardResponse
+from app.states import BuildCardRequest, CardResponse
 
 logger = logging.getLogger('app')
 
@@ -129,7 +129,7 @@ def register_card_response_handlers(dp: Dispatcher):
     )
     dp.register_callback_query_handler(
         card_list_get_card,
-        cardlist_cd.filter(action='get'),
+        cardlist_cd.filter(action='getcard'),
         state=CardResponse.list,
     )
     dp.register_callback_query_handler(

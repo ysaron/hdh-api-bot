@@ -8,10 +8,10 @@ from contextlib import suppress
 
 from app.services.answer_builders import AnswerBuilder
 from app.services.messages import CommonMessage
-from app.services.keyboards import command_cd, deckparam_cd
+from app.services.keyboards import command_cd, deckparam_cd, cardlist_cd
 from app.services.utils import clear_prompt, check_date, clear_all, paginate_list
 from app.services.api import RequestDecks
-from app.states.decks import BuildDeckRequest, DeckResponse
+from app.states import BuildDeckRequest, DeckResponse, CardResponse
 from app.config import hs_data, MAX_DECKS_IN_RESPONSE
 
 logger = logging.getLogger('app')
@@ -169,14 +169,9 @@ async def deck_search_clear(call: types.CallbackQuery, state: FSMContext):
     await update_deck_request(call.message, state, data)
 
 
-async def deck_search(call: types.CallbackQuery, state: FSMContext):
-    """
-    Perform API request with stored parameters
-
-    Send formatted response
-    """
+async def request_decks(call: types.CallbackQuery, state: FSMContext):
+    """ Perform request, send deck_list """
     data = await state.get_data()
-
     try:
         decks = await RequestDecks(data).get()
     except ClientResponseError as e:
@@ -212,6 +207,24 @@ async def deck_search(call: types.CallbackQuery, state: FSMContext):
     await call.answer()
 
 
+async def deck_search(call: types.CallbackQuery, state: FSMContext):
+    """ Search decks from Deck Request """
+
+    await state.update_data(on_close='decks_base')
+    await request_decks(call, state)
+
+
+async def deck_search_from_card_detail(call: types.CallbackQuery, callback_data: dict, state: FSMContext):
+    """ Search decks from Card Detail """
+    dbf_id = callback_data.get('id')
+    if not dbf_id:
+        await call.answer("Something went wrong. Couldn't get card data")
+        return
+    await state.update_data(deck_cards=[dbf_id], deck_created_after=None, dformat=None, dclass=None,
+                            on_close='cards_list')
+    await request_decks(call, state)
+
+
 def register_deck_request_handlers(dp: Dispatcher):
     dp.register_message_handler(deck_search_start, commands='decks', state='*')
     dp.register_message_handler(
@@ -234,6 +247,11 @@ def register_deck_request_handlers(dp: Dispatcher):
         deck_search,
         command_cd.filter(scope='deck_request', action='request'),
         state=BuildDeckRequest.base,
+    )
+    dp.register_callback_query_handler(
+        deck_search_from_card_detail,
+        cardlist_cd.filter(action='getdecks'),
+        state=CardResponse.list,
     )
     dp.register_callback_query_handler(
         deck_search_format_input,

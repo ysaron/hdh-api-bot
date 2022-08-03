@@ -11,7 +11,7 @@ from app.services.utils import flip_page
 from app.services.answer_builders import AnswerBuilder
 from app.services.api import RequestSingleDeck
 from app.services.messages import CommonMessage
-from app.states.decks import BuildDeckRequest, DeckResponse
+from app.states import DeckResponse, STATES
 
 logger = logging.getLogger('app')
 
@@ -45,22 +45,34 @@ async def deck_list_pages(call: types.CallbackQuery, callback_data: dict, state:
             # Show tooltip
             await call.answer(text='This button does nothing')
         case 'close':
+            data = await state.get_data()
+            on_close = data.get('on_close', 'decks_base')
+
             # Delete DeckList message
             await call.message.delete()
-            await BuildDeckRequest.base.set()
 
-            # Open keyboard again for DeckRequestInfoMessage
-            data = await state.get_data()
-            if data.get('deck_request_msg_id'):
-                response = AnswerBuilder(data).decks.request_info()
-                with suppress(MessageNotModified):
-                    await call.bot.edit_message_reply_markup(
-                        chat_id=call.message.chat.id,
-                        message_id=data['deck_request_msg_id'],
-                        reply_markup=response.keyboard
-                    )
+            # Set the state depending on where the decks were searched from
+            await STATES[on_close].set()
 
-            await state.update_data(deck_response_msg_id=None, deck_list=None, deck_detail=None)
+            # Open keyboard again for the caused message
+            for key in ['deck_request_msg_id', 'card_response_msg_id']:
+                if data.get(key):
+                    match on_close:
+                        case 'decks_base':
+                            response = AnswerBuilder(data).decks.request_info()
+                        case 'cards_list':
+                            response = AnswerBuilder(data).cards.result_detail()
+                        case _:
+                            response = AnswerBuilder(data).decks.request_info()
+
+                    with suppress(MessageNotModified):
+                        await call.bot.edit_message_reply_markup(
+                            chat_id=call.message.chat.id,
+                            message_id=data[key],
+                            reply_markup=response.keyboard
+                        )
+
+            await state.update_data(deck_response_msg_id=None, deck_list=None, deck_detail=None, on_close=None)
         case _:
             raise ValueError(f'Unknown DeckList action: {action}')
 

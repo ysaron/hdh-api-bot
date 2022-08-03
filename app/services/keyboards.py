@@ -6,7 +6,7 @@ from app.config import hs_data
 KeyboardMarkup = ReplyKeyboardMarkup | InlineKeyboardMarkup | ReplyKeyboardRemove | None
 Btns = list[tuple[str | InlineKeyboardButton, ...] | str]
 
-command_cd = CallbackData('cmd', 'scope', 'action')
+command_cd = CallbackData('cmd', 'scope', 'action', 'on_close')
 cardparam_cd = CallbackData('cpd', 'param', 'action')
 cardlist_cd = CallbackData('cld', 'id', 'action')
 deckparam_cd = CallbackData('dpd', 'param', 'action')
@@ -121,9 +121,15 @@ class CardKeyboardBuilder(KeyboardBuilder):
         ))
 
         buttons.append((
-            InlineKeyboardButton('REQUEST', callback_data=command_cd.new(scope='card_request', action='request')),
-            InlineKeyboardButton('CLEAR', callback_data=command_cd.new(scope='card_request', action='clear')),
-            InlineKeyboardButton('CLOSE', callback_data=command_cd.new(scope='card_request', action='close')),
+            InlineKeyboardButton('REQUEST', callback_data=command_cd.new(scope='card_request',
+                                                                         action='request',
+                                                                         on_close='')),
+            InlineKeyboardButton('CLEAR', callback_data=command_cd.new(scope='card_request',
+                                                                       action='clear',
+                                                                       on_close='')),
+            InlineKeyboardButton('CLOSE', callback_data=command_cd.new(scope='card_request',
+                                                                       action='close',
+                                                                       on_close='')),
         ))
         self.keyboard = InlineKeyboardMarkup()
         self.fill(buttons)
@@ -180,7 +186,7 @@ class CardKeyboardBuilder(KeyboardBuilder):
 
         card_buttons = [
             InlineKeyboardButton(f'{i}. {card["name"]}',
-                                 callback_data=cardlist_cd.new(id=card['dbf_id'], action='get'))
+                                 callback_data=cardlist_cd.new(id=card['dbf_id'], action='getcard'))
             for i, card in enumerate(page_cards, start=1)
         ]
         card_buttons = self.group_buttons(card_buttons, cols=3)
@@ -188,16 +194,20 @@ class CardKeyboardBuilder(KeyboardBuilder):
         page_buttons = []
         if total_pages > 1:
             page_buttons = [
-                InlineKeyboardButton('◄', callback_data=command_cd.new(scope='card_pages', action='left')),
+                InlineKeyboardButton('◄', callback_data=command_cd.new(scope='card_pages', action='left', on_close='')),
                 InlineKeyboardButton(
                     f'| Page {page} of {total_pages} |',
-                    callback_data=command_cd.new(scope='card_pages', action='pages'),
+                    callback_data=command_cd.new(scope='card_pages', action='pages', on_close=''),
                 ),
-                InlineKeyboardButton('►', callback_data=command_cd.new(scope='card_pages', action='right')),
+                InlineKeyboardButton('►', callback_data=command_cd.new(scope='card_pages',
+                                                                       action='right',
+                                                                       on_close='')),
             ]
 
         control_buttons = [
-            InlineKeyboardButton('CLOSE', callback_data=command_cd.new(scope='card_pages', action='close')),
+            InlineKeyboardButton('CLOSE', callback_data=command_cd.new(scope='card_pages',
+                                                                       action='close',
+                                                                       on_close='')),
         ]
 
         card_buttons.append(tuple(page_buttons))
@@ -209,11 +219,16 @@ class CardKeyboardBuilder(KeyboardBuilder):
 
     def result_detail(self):
         """ Return a keyboard to control CardDetail message """
+        card = self.data['card_detail']
         buttons = [
-            InlineKeyboardButton('Find decks!', callback_data=command_cd.new(scope='card_detail', action='decks')),
+            InlineKeyboardButton('Find decks!', callback_data=cardlist_cd.new(id=card['dbf_id'], action='getdecks')),
             (
-                InlineKeyboardButton('BACK', callback_data=command_cd.new(scope='card_detail', action='back')),
-                InlineKeyboardButton('CLOSE', callback_data=command_cd.new(scope='card_pages', action='close')),
+                InlineKeyboardButton('BACK', callback_data=command_cd.new(scope='card_detail',
+                                                                          action='back',
+                                                                          on_close='')),
+                InlineKeyboardButton('CLOSE', callback_data=command_cd.new(scope='card_pages',
+                                                                           action='close',
+                                                                           on_close='')),
             ),
         ]
         self.keyboard = InlineKeyboardMarkup()
@@ -239,9 +254,15 @@ class DeckKeyboardBuilder(KeyboardBuilder):
             ),
             InlineKeyboardButton('Language', callback_data=deckparam_cd.new(param='language', action='add')),
             (
-                InlineKeyboardButton('REQUEST', callback_data=command_cd.new(scope='deck_request', action='request')),
-                InlineKeyboardButton('CLEAR', callback_data=command_cd.new(scope='deck_request', action='clear')),
-                InlineKeyboardButton('CLOSE', callback_data=command_cd.new(scope='deck_request', action='close')),
+                InlineKeyboardButton('REQUEST', callback_data=command_cd.new(scope='deck_request',
+                                                                             action='request',
+                                                                             on_close='')),
+                InlineKeyboardButton('CLEAR', callback_data=command_cd.new(scope='deck_request',
+                                                                           action='clear',
+                                                                           on_close='')),
+                InlineKeyboardButton('CLOSE', callback_data=command_cd.new(scope='deck_request',
+                                                                           action='close',
+                                                                           on_close='')),
             )
         ]
 
@@ -284,6 +305,7 @@ class DeckKeyboardBuilder(KeyboardBuilder):
 
     def result_list(self):
         """ Return a keyboard to control DeckList message """
+        state_on_close = self.data['on_close']
         page = self.data['deck_list']['page']
         all_decks = self.data['deck_list']['decks']
         total_pages = len(all_decks)
@@ -299,16 +321,20 @@ class DeckKeyboardBuilder(KeyboardBuilder):
         page_buttons = []
         if total_pages > 1:
             page_buttons = [
-                InlineKeyboardButton('◄', callback_data=command_cd.new(scope='deck_pages', action='left')),
+                InlineKeyboardButton('◄', callback_data=command_cd.new(scope='deck_pages', action='left', on_close='')),
                 InlineKeyboardButton(
                     f'| Page {page} of {total_pages} |',
-                    callback_data=command_cd.new(scope='deck_pages', action='pages'),
+                    callback_data=command_cd.new(scope='deck_pages', action='pages', on_close=''),
                 ),
-                InlineKeyboardButton('►', callback_data=command_cd.new(scope='deck_pages', action='right')),
+                InlineKeyboardButton('►', callback_data=command_cd.new(scope='deck_pages',
+                                                                       action='right',
+                                                                       on_close='')),
             ]
 
         control_buttons = [
-            InlineKeyboardButton('CLOSE', callback_data=command_cd.new(scope='deck_pages', action='close')),
+            InlineKeyboardButton('CLOSE', callback_data=command_cd.new(scope='deck_pages',
+                                                                       action='close',
+                                                                       on_close=state_on_close)),
         ]
 
         deck_buttons.append(tuple(page_buttons))
@@ -322,8 +348,12 @@ class DeckKeyboardBuilder(KeyboardBuilder):
         """ Return a keyboard to control DeckDetail message """
         buttons = [
             (
-                InlineKeyboardButton('BACK', callback_data=command_cd.new(scope='deck_detail', action='back')),
-                InlineKeyboardButton('CLOSE', callback_data=command_cd.new(scope='deck_pages', action='close')),
+                InlineKeyboardButton('BACK', callback_data=command_cd.new(scope='deck_detail',
+                                                                          action='back',
+                                                                          on_close='')),
+                InlineKeyboardButton('CLOSE', callback_data=command_cd.new(scope='deck_pages',
+                                                                           action='close',
+                                                                           on_close='')),
             ),
         ]
         self.keyboard = InlineKeyboardMarkup()

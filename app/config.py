@@ -8,7 +8,7 @@ import ujson
 
 from .exceptions import ArgumentError, ConfigurationError
 
-DEBUG = False        # False if running by Docker
+DEBUG = True        # False if running by Docker
 if DEBUG:
     from dotenv import load_dotenv
     load_dotenv()

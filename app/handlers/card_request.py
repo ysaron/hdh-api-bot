@@ -12,7 +12,7 @@ from app.services.utils import is_positive_integer, clear_all, clear_prompt, pag
 from app.services.answer_builders import AnswerBuilder
 from app.services.api import RequestCards
 from app.services.messages import CommonMessage
-from app.states.cards import BuildCardRequest, WaitCardNumericParam, CardResponse
+from app.states import BuildCardRequest, WaitCardNumericParam, CardResponse
 from app.config import hs_data, MAX_CARDS_IN_RESPONSE
 from app.exceptions import EmptyRequestError
 
