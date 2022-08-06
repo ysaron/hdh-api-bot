@@ -74,7 +74,7 @@ async def deck_list_pages(call: types.CallbackQuery, callback_data: dict, state:
                         reply_markup=response.keyboard
                     )
 
-            await state.update_data(deck_response_msg_id=None, deck_list=None, deck_detail=None, on_close=None)
+            await state.update_data(deck_response_msg_id=None, deck_list=None, deck_detail=None, on_close='')
         case _:
             raise ValueError(f'Unknown DeckList action: {action}')
 

@@ -9,9 +9,9 @@ from contextlib import suppress
 from app.services.answer_builders import AnswerBuilder
 from app.services.messages import CommonMessage
 from app.services.keyboards import command_cd, deckparam_cd, cardlist_cd
-from app.services.utils import clear_prompt, check_date, clear_all, paginate_list
+from app.services.utils import clear_prompt, check_date, clear_all, paginate_list, card_in_query
 from app.services.api import RequestDecks
-from app.states import BuildDeckRequest, DeckResponse, CardResponse
+from app.states import BuildDeckRequest, DeckResponse, CardResponse, BuildCardRequest
 from app.config import hs_data, MAX_DECKS_IN_RESPONSE
 
 logger = logging.getLogger('app')
@@ -43,7 +43,7 @@ async def deck_search_start(message: types.Message, state: FSMContext):
 
     request_message = await message.answer(text=answer.text, reply_markup=answer.keyboard)
     await BuildDeckRequest.base.set()
-    await state.update_data(deck_request_msg_id=request_message.message_id)
+    await state.update_data(deck_request_msg_id=request_message.message_id, on_close='')
 
 
 async def deck_search_param_cancel(call: types.CallbackQuery, state: FSMContext):
@@ -135,9 +135,51 @@ async def deck_search_date_entered(message: types.Message, state: FSMContext):
                 )
 
 
-async def deck_search_cards_input(call: types.CallbackQuery):
-    """ Prepare to search a card as a deck parameter """
-    await call.answer('Coming soon')
+async def deck_search_add_card(call: types.CallbackQuery, callback_data: dict, state: FSMContext):
+    """ Add current card data to deck request, close Card Detail Info """
+    data = await state.get_data()
+    query_cards = data.get('deck_cards')
+    current_card = data.get('card_detail')
+    if query_cards is None:
+        query_cards = []
+
+    if not current_card:
+        logger.error("Couldn't add current card to query")
+        return
+
+    if not card_in_query(current_card, query_cards):
+        new_query_card = {
+            'id': current_card['dbf_id'],
+            'card_id': current_card['card_id'],
+            'name': current_card['name'],
+        }
+        query_cards.append(new_query_card)
+
+    await state.update_data(deck_cards=query_cards, card_response_msg_id=None)
+    data = await state.get_data()
+
+    # Update DeckRequestInfo
+    if data.get('deck_request_msg_id'):
+        response = AnswerBuilder(data).decks.request_info()
+        with suppress(MessageNotModified):
+            await call.bot.edit_message_text(
+                chat_id=call.message.chat.id,
+                message_id=data['deck_request_msg_id'],
+                text=response.text,
+                reply_markup=response.keyboard
+            )
+
+    # Back to card search
+    await call.message.delete()
+    await BuildCardRequest.base.set()
+    if data.get('card_request_msg_id'):
+        response = AnswerBuilder(data).cards.request_info()
+        with suppress(MessageNotModified):
+            await call.bot.edit_message_reply_markup(
+                chat_id=call.message.chat.id,
+                message_id=data['card_request_msg_id'],
+                reply_markup=response.keyboard
+            )
 
 
 async def deck_search_language_input(call: types.CallbackQuery):
@@ -220,7 +262,15 @@ async def deck_search_from_card_detail(call: types.CallbackQuery, callback_data:
     if not dbf_id:
         await call.answer("Something went wrong. Couldn't get card data")
         return
-    await state.update_data(deck_cards=[dbf_id], deck_created_after=None, dformat=None, dclass=None,
+
+    data = await state.get_data()
+    current_card = data.get('card_detail')
+    query_card = {
+        'id': current_card['dbf_id'],
+        'card_id': current_card['card_id'],
+        'name': current_card['name'],
+    }
+    await state.update_data(deck_cards=[query_card], deck_created_after=None, dformat=None, dclass=None,
                             on_close='cards_list')
     await request_decks(call, state)
 
@@ -269,9 +319,9 @@ def register_deck_request_handlers(dp: Dispatcher):
         state=BuildDeckRequest.base,
     )
     dp.register_callback_query_handler(
-        deck_search_cards_input,
-        deckparam_cd.filter(param='deck_cards', action='add'),
-        state=BuildDeckRequest.base,
+        deck_search_add_card,
+        cardlist_cd.filter(action='addcard'),
+        state=CardResponse.list,
     )
     dp.register_callback_query_handler(
         deck_search_language_input,

@@ -40,21 +40,18 @@ class TestCommonHandlers:
 class TestCardHandlers:
 
     @pytest.mark.asyncio
-    async def test_card_search_start(self, card_request_full_data, remove_keyboard):
+    async def test_card_search_start_from_main_menu(self, card_request_full_data, remove_keyboard):
         message_mock = AsyncMock()
         context_mock = AsyncMock()
         with asynctest.patch('app.states.cards.BuildCardRequest.base.set') as state_mock, \
                 patch('app.services.answer_builders.CardAnswerBuilder.request_info') as builder_mock:
             context_mock.get_data.return_value = card_request_full_data
-            await card_search_start(message=message_mock, state=context_mock)
+            await card_search_start_from_main_menu(message=message_mock, state=context_mock)
 
             builder_mock.assert_called_with()
 
-            answer_calls = [
-                call(text='Starting a new card search...', reply_markup=remove_keyboard),
-                call(text=ANY, reply_markup=ANY),
-            ]
-            message_mock.answer.assert_has_calls(answer_calls)
+            message_mock.answer.assert_called_with(text=CommonMessage.NEW_CARD_SEARCH, reply_markup=remove_keyboard)
+            message_mock.reply.assert_called_with(text=ANY, reply_markup=ANY)
             state_mock.assert_called()
             context_mock.get_data.assert_called_with()
             context_mock.update_data.assert_called_with(card_request_msg_id=ANY)
@@ -639,13 +636,13 @@ class TestDeckHandlers:
             builder_mock.assert_called_with()
 
             answer_calls = [
-                call(text='Starting a new deck search...', reply_markup=remove_keyboard),
+                call(text=CommonMessage.NEW_DECK_SEARCH, reply_markup=remove_keyboard),
                 call(text=ANY, reply_markup=ANY),
             ]
             message_mock.answer.assert_has_calls(answer_calls)
             state_mock.assert_called()
             context_mock.get_data.assert_called_with()
-            context_mock.update_data.assert_called_with(deck_request_msg_id=ANY)
+            context_mock.update_data.assert_called_with(deck_request_msg_id=ANY, on_close='')
 
     @pytest.mark.asyncio
     async def test_deck_search_param_cancel(self):
@@ -880,10 +877,10 @@ class TestDeckHandlers:
             call_mock.answer.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_deck_search_from_card_detail(self, deck_request_full_data, deck_list_full_data):
+    async def test_deck_search_from_card_detail(self, deck_request_full_data, deck_list_full_data, card_detail_data):
         call_mock = AsyncMock()
         context_mock = AsyncMock()
-        context_mock.get_data.return_value = deck_request_full_data | deck_list_full_data
+        context_mock.get_data.return_value = deck_request_full_data | deck_list_full_data | card_detail_data
         callback_data = {'id': 75583}
 
         with asynctest.patch('app.handlers.deck_request.RequestDecks.get') as api_mock, \
@@ -946,7 +943,7 @@ class TestDeckHandlers:
                 deck_response_msg_id=None,
                 deck_list=None,
                 deck_detail=None,
-                on_close=None,
+                on_close='',
             )
 
     @pytest.mark.asyncio

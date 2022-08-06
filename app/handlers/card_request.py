@@ -7,12 +7,12 @@ from aiogram.utils.exceptions import MessageNotModified, MessageToEditNotFound, 
 from contextlib import suppress
 import logging
 
-from app.services.keyboards import cardparam_cd, command_cd
+from app.services.keyboards import cardparam_cd, command_cd, deckparam_cd
 from app.services.utils import is_positive_integer, clear_all, clear_prompt, paginate_list, check_card_name
 from app.services.answer_builders import AnswerBuilder
 from app.services.api import RequestCards
 from app.services.messages import CommonMessage
-from app.states import BuildCardRequest, WaitCardNumericParam, CardResponse
+from app.states import BuildCardRequest, WaitCardNumericParam, CardResponse, BuildDeckRequest, STATES
 from app.config import hs_data, MAX_CARDS_IN_RESPONSE
 from app.exceptions import EmptyRequestError
 
@@ -35,17 +35,30 @@ async def update_card_request(message: types.Message, state: FSMContext, request
             )
 
 
-async def card_search_start(message: types.Message, state: FSMContext):
+async def card_search_start(message: types.message, state: FSMContext):
     """ Start a new card request, send CardRequestInfoMessage """
     data = await state.get_data()
     answer = AnswerBuilder(data).cards.request_info()
 
+    request_message = await message.reply(text=answer.text, reply_markup=answer.keyboard)
+    await BuildCardRequest.base.set()
+    await state.update_data(card_request_msg_id=request_message.message_id)
+
+
+async def card_search_start_from_main_menu(message: types.Message, state: FSMContext):
+    """ Update data, call ``card_search_start`` """
+    await state.update_data(on_close='')
+
     # To remove ReplyKeyboard
     await message.answer(text=CommonMessage.NEW_CARD_SEARCH, reply_markup=types.ReplyKeyboardRemove())
 
-    request_message = await message.answer(text=answer.text, reply_markup=answer.keyboard)
-    await BuildCardRequest.base.set()
-    await state.update_data(card_request_msg_id=request_message.message_id)
+    await card_search_start(message, state)
+
+
+async def card_search_start_from_deck_search(call: types.CallbackQuery, state: FSMContext):
+    """ Set callback state, call ``card_search_start`` """
+    await state.update_data(on_close='decks_base')
+    await card_search_start(call.message, state)
 
 
 async def card_search_param_cancel(call: types.CallbackQuery, state: FSMContext):
@@ -270,14 +283,20 @@ async def card_search_collectible_input(call: types.CallbackQuery):
 
 async def card_search_close(call: types.CallbackQuery, state: FSMContext):
     """ Called when Close button of CardRequestInfoMessage is pressed """
-    await clear_all(call.message, state)
+
     data = await state.get_data()
-    answer = AnswerBuilder(data).common.cancel()
-    await call.bot.send_message(
-        chat_id=call.message.chat.id,
-        text=answer.text,
-        reply_markup=answer.keyboard,
-    )
+    on_close = data.get('on_close')
+    if on_close and STATES.get(on_close):
+        await call.message.delete()
+        await STATES[on_close].set()
+    else:
+        await clear_all(call.message, state)
+        answer = AnswerBuilder(data).common.cancel()
+        await call.bot.send_message(
+            chat_id=call.message.chat.id,
+            text=answer.text,
+            reply_markup=answer.keyboard,
+        )
 
 
 async def card_search_clear(call: types.CallbackQuery, state: FSMContext):
@@ -341,8 +360,13 @@ async def card_search(call: types.CallbackQuery, state: FSMContext):
 
 
 def register_card_request_handlers(dp: Dispatcher):
-    dp.register_message_handler(card_search_start, commands='cards', state='*')
-    dp.register_message_handler(card_search_start, Text(equals='cards', ignore_case=True), state='*')
+    dp.register_message_handler(card_search_start_from_main_menu, commands='cards', state='*')
+    dp.register_message_handler(card_search_start_from_main_menu, Text(equals='cards', ignore_case=True), state='*')
+    dp.register_callback_query_handler(
+        card_search_start_from_deck_search,
+        deckparam_cd.filter(param='deck_cards', action='add'),
+        state=BuildDeckRequest.base,
+    )
     dp.register_callback_query_handler(
         card_search_close,
         command_cd.filter(scope='card_request', action='close'),

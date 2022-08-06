@@ -113,7 +113,7 @@ class RequestDecks(Request):
                 clean_data['date_after'] = self.format_date(value)
                 continue
             if key == 'deck_cards':
-                clean_data['cards'] = ','.join(value)
+                clean_data['cards'] = ','.join(str(card['id']) for card in value)
                 continue
 
             clean_data[key] = value

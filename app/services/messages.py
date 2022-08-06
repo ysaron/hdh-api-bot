@@ -273,7 +273,7 @@ class DeckRequestInfo(TextBuilder):
         self.dformat = 'Format: <b>{}</b>'
         self.dclass = 'Class: <b>{}</b>'
         self.created_after = 'Created after: <b>{}</b>'
-        self.dcards = 'Cards: {}'
+        self.dcards = 'Cards:'
 
     def format(self):
         self.rows.append(self.header)
@@ -284,6 +284,14 @@ class DeckRequestInfo(TextBuilder):
             self.rows.append(self.dclass.format(self.data['dclass']))
         if self.data.get('deck_created_after'):
             self.rows.append(self.created_after.format(self.data['deck_created_after']))
+        if self.data.get('deck_cards'):
+            self.rows.append(self.dcards)
+            for card in self.data['deck_cards']:
+                row = md.text(
+                    '-',
+                    md.hlink(card['name'], url=f'{CARD_RENDER_BASE_URL}en/{card["card_id"]}.png'),
+                )
+                self.rows.append(row)
 
     def as_text(self) -> str:
         if not self.rows:

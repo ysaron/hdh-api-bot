@@ -79,6 +79,7 @@ class CardKeyboardBuilder(KeyboardBuilder):
 
     def request_info(self) -> InlineKeyboardMarkup:
         """ Build a keyboard for CardRequestInfoMessage """
+        state_on_close = self.data.get('on_close', '')
         buttons = [
             (
                 InlineKeyboardButton('Name', callback_data=cardparam_cd.new(param='name', action='add')),
@@ -129,7 +130,7 @@ class CardKeyboardBuilder(KeyboardBuilder):
                                                                        on_close='')),
             InlineKeyboardButton('CLOSE', callback_data=command_cd.new(scope='card_request',
                                                                        action='close',
-                                                                       on_close='')),
+                                                                       on_close=state_on_close)),
         ))
         self.keyboard = InlineKeyboardMarkup()
         self.fill(buttons)
@@ -220,8 +221,14 @@ class CardKeyboardBuilder(KeyboardBuilder):
     def result_detail(self):
         """ Return a keyboard to control CardDetail message """
         card = self.data['card_detail']
+        if self.data.get('on_close'):
+            first_btn = InlineKeyboardButton('Add this card to deck request',
+                                             callback_data=cardlist_cd.new(id=card['dbf_id'], action='addcard'))
+        else:
+            first_btn = InlineKeyboardButton('Find decks!',
+                                             callback_data=cardlist_cd.new(id=card['dbf_id'], action='getdecks'))
         buttons = [
-            InlineKeyboardButton('Find decks!', callback_data=cardlist_cd.new(id=card['dbf_id'], action='getdecks')),
+            first_btn,
             (
                 InlineKeyboardButton('BACK', callback_data=command_cd.new(scope='card_detail',
                                                                           action='back',

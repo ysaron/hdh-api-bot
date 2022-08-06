@@ -107,6 +107,10 @@ def is_valid_deckstring(deckstring: str) -> bool:
     return bool(re.match(r'^AAE[a-zA-Z0-9/+=]{30,}$', deckstring))
 
 
+def card_in_query(card: dict, query: list[dict]) -> bool:
+    return any(card['dbf_id'] == q_card['id'] for q_card in query)
+
+
 async def clear_all(message: types.Message, state: FSMContext):
     """ Delete all stored messages """
     data = await state.get_data()
