@@ -122,15 +122,19 @@ class CardKeyboardBuilder(KeyboardBuilder):
         ))
 
         buttons.append((
-            InlineKeyboardButton('REQUEST', callback_data=command_cd.new(scope='card_request',
-                                                                         action='request',
-                                                                         on_close='')),
-            InlineKeyboardButton('CLEAR', callback_data=command_cd.new(scope='card_request',
-                                                                       action='clear',
-                                                                       on_close='')),
-            InlineKeyboardButton('CLOSE', callback_data=command_cd.new(scope='card_request',
-                                                                       action='close',
-                                                                       on_close=state_on_close)),
+            InlineKeyboardButton('REQUEST ✅', callback_data=command_cd.new(scope='card_request',
+                                                                           action='request',
+                                                                           on_close='')),
+            InlineKeyboardButton('CLEAR 🗑', callback_data=command_cd.new(
+                scope='card_request',
+                action='clear',
+                on_close='',
+            )),
+            InlineKeyboardButton('CLOSE ❌', callback_data=command_cd.new(
+                scope='card_request',
+                action='close',
+                on_close=state_on_close,
+            )),
         ))
         self.keyboard = InlineKeyboardMarkup()
         self.fill(buttons)
@@ -143,11 +147,11 @@ class CardKeyboardBuilder(KeyboardBuilder):
 
         :raise ValueError: if param is unsupported
         """
-        lower_row = [InlineKeyboardButton('CANCEL', callback_data=cardparam_cd.new(param=param, action='cancel'))]
+        lower_row = [InlineKeyboardButton('CANCEL ❌', callback_data=cardparam_cd.new(param=param, action='cancel'))]
 
         if self.data.get(param):
             lower_row.append(
-                InlineKeyboardButton('CLEAR', callback_data=cardparam_cd.new(param=param, action='clear'))
+                InlineKeyboardButton('CLEAR 🗑', callback_data=cardparam_cd.new(param=param, action='clear'))
             )
 
         match param:
@@ -195,20 +199,26 @@ class CardKeyboardBuilder(KeyboardBuilder):
         page_buttons = []
         if total_pages > 1:
             page_buttons = [
-                InlineKeyboardButton('◄', callback_data=command_cd.new(scope='card_pages', action='left', on_close='')),
+                InlineKeyboardButton('⬅️', callback_data=command_cd.new(
+                    scope='card_pages',
+                    action='left',
+                    on_close='',
+                )),
                 InlineKeyboardButton(
                     f'| Page {page} of {total_pages} |',
                     callback_data=command_cd.new(scope='card_pages', action='pages', on_close=''),
                 ),
-                InlineKeyboardButton('►', callback_data=command_cd.new(scope='card_pages',
-                                                                       action='right',
-                                                                       on_close='')),
+                InlineKeyboardButton('➡️', callback_data=command_cd.new(
+                    scope='card_pages',
+                    action='right',
+                    on_close='',
+                )),
             ]
 
         control_buttons = [
-            InlineKeyboardButton('CLOSE', callback_data=command_cd.new(scope='card_pages',
-                                                                       action='close',
-                                                                       on_close='')),
+            InlineKeyboardButton('CLOSE ❌', callback_data=command_cd.new(scope='card_pages',
+                                                                         action='close',
+                                                                         on_close='')),
         ]
 
         card_buttons.append(tuple(page_buttons))
@@ -222,20 +232,24 @@ class CardKeyboardBuilder(KeyboardBuilder):
         """ Return a keyboard to control CardDetail message """
         card = self.data['card_detail']
         if self.data.get('on_close'):
-            first_btn = InlineKeyboardButton('Add this card to deck request',
+            first_btn = InlineKeyboardButton('✅ Add this card to deck request',
                                              callback_data=cardlist_cd.new(id=card['dbf_id'], action='addcard'))
         else:
-            first_btn = InlineKeyboardButton('Find decks!',
+            first_btn = InlineKeyboardButton('↖️ Find decks!',
                                              callback_data=cardlist_cd.new(id=card['dbf_id'], action='getdecks'))
         buttons = [
             first_btn,
             (
-                InlineKeyboardButton('BACK', callback_data=command_cd.new(scope='card_detail',
-                                                                          action='back',
-                                                                          on_close='')),
-                InlineKeyboardButton('CLOSE', callback_data=command_cd.new(scope='card_pages',
-                                                                           action='close',
-                                                                           on_close='')),
+                InlineKeyboardButton('BACK ↩️', callback_data=command_cd.new(
+                    scope='card_detail',
+                    action='back',
+                    on_close='',
+                )),
+                InlineKeyboardButton('CLOSE ❌', callback_data=command_cd.new(
+                    scope='card_pages',
+                    action='close',
+                    on_close='',
+                )),
             ),
         ]
         self.keyboard = InlineKeyboardMarkup()
@@ -261,15 +275,21 @@ class DeckKeyboardBuilder(KeyboardBuilder):
             ),
             InlineKeyboardButton('Language', callback_data=deckparam_cd.new(param='language', action='add')),
             (
-                InlineKeyboardButton('REQUEST', callback_data=command_cd.new(scope='deck_request',
-                                                                             action='request',
-                                                                             on_close='')),
-                InlineKeyboardButton('CLEAR', callback_data=command_cd.new(scope='deck_request',
-                                                                           action='clear',
-                                                                           on_close='')),
-                InlineKeyboardButton('CLOSE', callback_data=command_cd.new(scope='deck_request',
-                                                                           action='close',
-                                                                           on_close='')),
+                InlineKeyboardButton('REQUEST ✅', callback_data=command_cd.new(
+                    scope='deck_request',
+                    action='request',
+                    on_close='',
+                )),
+                InlineKeyboardButton('CLEAR 🗑', callback_data=command_cd.new(
+                    scope='deck_request',
+                    action='clear',
+                    on_close='',
+                )),
+                InlineKeyboardButton('CLOSE ❌', callback_data=command_cd.new(
+                    scope='deck_request',
+                    action='close',
+                    on_close='',
+                )),
             )
         ]
 
@@ -284,11 +304,11 @@ class DeckKeyboardBuilder(KeyboardBuilder):
 
         :raise ValueError: if param is unsupported
         """
-        lower_row = [InlineKeyboardButton('CANCEL', callback_data=deckparam_cd.new(param=param, action='cancel'))]
+        lower_row = [InlineKeyboardButton('CANCEL ❌', callback_data=deckparam_cd.new(param=param, action='cancel'))]
 
         if self.data.get(param):
             lower_row.append(
-                InlineKeyboardButton('CLEAR', callback_data=deckparam_cd.new(param=param, action='clear'))
+                InlineKeyboardButton('CLEAR 🗑', callback_data=deckparam_cd.new(param=param, action='clear'))
             )
 
         match param:
@@ -328,20 +348,27 @@ class DeckKeyboardBuilder(KeyboardBuilder):
         page_buttons = []
         if total_pages > 1:
             page_buttons = [
-                InlineKeyboardButton('◄', callback_data=command_cd.new(scope='deck_pages', action='left', on_close='')),
-                InlineKeyboardButton(
-                    f'| Page {page} of {total_pages} |',
-                    callback_data=command_cd.new(scope='deck_pages', action='pages', on_close=''),
-                ),
-                InlineKeyboardButton('►', callback_data=command_cd.new(scope='deck_pages',
-                                                                       action='right',
-                                                                       on_close='')),
+                InlineKeyboardButton('⬅️', callback_data=command_cd.new(
+                    scope='deck_pages',
+                    action='left',
+                    on_close='',
+                )),
+                InlineKeyboardButton(f'| Page {page} of {total_pages} |', callback_data=command_cd.new(
+                    scope='deck_pages',
+                    action='pages',
+                    on_close='',
+                )),
+                InlineKeyboardButton('➡️', callback_data=command_cd.new(
+                    scope='deck_pages',
+                    action='right',
+                    on_close='',
+                )),
             ]
 
         control_buttons = [
-            InlineKeyboardButton('CLOSE', callback_data=command_cd.new(scope='deck_pages',
-                                                                       action='close',
-                                                                       on_close=state_on_close)),
+            InlineKeyboardButton('CLOSE ❌', callback_data=command_cd.new(scope='deck_pages',
+                                                                         action='close',
+                                                                         on_close=state_on_close)),
         ]
 
         deck_buttons.append(tuple(page_buttons))
@@ -355,12 +382,12 @@ class DeckKeyboardBuilder(KeyboardBuilder):
         """ Return a keyboard to control DeckDetail message """
         buttons = [
             (
-                InlineKeyboardButton('BACK', callback_data=command_cd.new(scope='deck_detail',
-                                                                          action='back',
-                                                                          on_close='')),
-                InlineKeyboardButton('CLOSE', callback_data=command_cd.new(scope='deck_pages',
-                                                                           action='close',
-                                                                           on_close='')),
+                InlineKeyboardButton('BACK ↩️', callback_data=command_cd.new(scope='deck_detail',
+                                                                             action='back',
+                                                                             on_close='')),
+                InlineKeyboardButton('CLOSE ❌', callback_data=command_cd.new(scope='deck_pages',
+                                                                             action='close',
+                                                                             on_close='')),
             ),
         ]
         self.keyboard = InlineKeyboardMarkup()
