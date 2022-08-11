@@ -26,7 +26,7 @@ class CardRequestInfo(TextBuilder):
     def __init__(self, data: dict):
         super().__init__()
         self.data = data
-        self.header = '<b>►►► <u>Build request</u> ◄◄◄</b>'
+        self.header = '<b>►►► Request: <u>Cards</u> ◄◄◄</b>'
         self.language = 'Language: <b>English</b>'
         self.collectible = 'Collectible: <b>Yes</b>'
         self.name = 'Name: <b><u>{}</u></b>'
@@ -233,7 +233,7 @@ class DeckDetailInfo(TextBuilder):
     def format(self):
         deck_id = self.deck["id"]
         link = md.hlink(f'{self.dformat} {self.dclass} deck (id{deck_id})', url=f'{BASE_URL}/en/decks/{deck_id}')
-        self.rows.append(f'<b>► ► ► {link} ◄ ◄ ◄</b>')
+        self.rows.append(f'<b>►►► {link} ◄◄◄</b>')
         self.rows.append(f'\nCreated: <b>{self.date}</b>\n')
 
         for card in self.cards:
@@ -268,7 +268,7 @@ class DeckRequestInfo(TextBuilder):
     def __init__(self, data: dict):
         super().__init__()
         self.data = data
-        self.header = '<b>►►► <u>Build request</u> ◄◄◄</b>'
+        self.header = '<b>►►► Request: <u>Decks</u> ◄◄◄</b>'
         self.language = 'Language: <b>English</b>'
         self.dformat = 'Format: <b>{}</b>'
         self.dclass = 'Class: <b>{}</b>'
@@ -378,8 +378,11 @@ class CommonMessage:
              'Available commands:\n/cards\n/decks\n/decode'
     NEW_CARD_SEARCH = 'Starting a new card search...'
     NEW_DECK_SEARCH = 'Starting a new deck search...'
-    DECODE_DECK_PROMPT = 'Send me the Hearthstone deck code, for example:\n' \
-                         '<pre>AAEBAaIHBPYC0OMCt7MEv84EDYgH9bsC8OYCqssD590DqusD/u4D0/MDjfQDofQDvYAE958E/KUEAA==</pre>'
+    DECODE_DECK_PROMPT = md.text(
+        'Send me the Hearthstone', md.hbold('deck code,'), 'for example:',
+        md.hcode('AAEBAaIHBPYC0OMCt7MEv84EDYgH9bsC8OYCqssD590DqusD/u4D0/MDjfQDofQDvYAE958E/KUEAA=='), '\nor the',
+        md.hbold('full decklist'), 'in the form in which it is copied from the game client.'
+    )
     DECODE_ERROR = f'❗️ Error: probably invalid deckstring'
     INVALID_DECKSTRING = '❗️ This deck code seems to be corrupted'
     INVALID_DECKLIST = '❗️ Couldn\'t extract the deck code'
