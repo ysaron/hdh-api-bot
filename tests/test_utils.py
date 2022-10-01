@@ -92,12 +92,12 @@ async def test_deck_decode(pure_deckstring, deck_detail_data):
     context_mock = AsyncMock()
     context_mock.get_data.return_value = deck_detail_data
 
-    with asynctest.patch('app.services.utils.RequestDecodeDeck.post') as api_mock, \
+    with asynctest.patch('app.services.utils.RequestDecks.post') as api_mock, \
             patch('app.services.answer_builders.DeckAnswerBuilder.deck_detail') as builder_mock:
         api_mock.return_value = deck_detail_data
         await utils.deck_decode(message=message_mock, state=context_mock, deckstring=pure_deckstring)
 
-        api_mock.assert_called_with({'d': pure_deckstring})
+        api_mock.assert_called_with({'string': pure_deckstring})
         context_mock.update_data.assert_called_with(deck_detail=deck_detail_data)
         builder_mock.assert_called_with()
         message_mock.reply.assert_called()
