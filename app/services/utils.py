@@ -10,7 +10,7 @@ from datetime import datetime
 
 from app.exceptions import DeckstringError
 from app.config import config, MAX_CARD_NAME_LENGTH
-from .api import RequestDecodeDeck
+from .api import RequestDecks
 from .answer_builders import AnswerBuilder
 from .messages import CommonMessage
 
@@ -140,7 +140,7 @@ async def deck_decode(message: types.Message, state: FSMContext, deckstring: str
     """
 
     try:
-        deck = await RequestDecodeDeck().post({'d': deckstring})
+        deck = await RequestDecks({}).post({'string': deckstring})
     except ClientResponseError as e:
         logger.error(f'HS Deck Helper API is unreachable: {e}')
         await message.reply(CommonMessage.SERVER_UNAVAILABLE)

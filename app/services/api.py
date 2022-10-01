@@ -83,14 +83,14 @@ class RequestSingleCard(Request):
         raise NotImplementedError
 
 
-class RequestDecodeDeck(Request):
-    """ **POST deck code** request """
-
-    def __init__(self):
-        super().__init__(endpoint='decode_deck/')
-
-    async def get(self):
-        raise NotImplementedError
+# class RequestDecodeDeck(Request):
+#     """ **POST deck code** request """
+#
+#     def __init__(self):
+#         super().__init__(endpoint='decode_deck/')
+#
+#     async def get(self):
+#         raise NotImplementedError
 
 
 class RequestDecks(Request):
@@ -99,9 +99,6 @@ class RequestDecks(Request):
     def __init__(self, data: dict):
         self.data = data
         super().__init__(endpoint='decks/')
-
-    async def post(self, data):
-        raise NotImplementedError
 
     @property
     def params(self) -> dict:
