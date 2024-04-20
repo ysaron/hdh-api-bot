@@ -2,7 +2,7 @@
 
 Asynchronous Telegram bot-wrapper for [HS Deck Helper](https://github.com/ysaron/hearthstone-deck-helper) API.  
 
-> [@hdhapiwrapper_bot](https://t.me/hdhapiwrapper_bot)
+> This project has been abandoned - I've completely lost interest in Hearthstone and am not following updates.
 
 The bot allows you to construct requests to the HS Deck Helper API using Telegram buttons and receive formatted responses.  
 
